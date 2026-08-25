@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: ozikops-backend
+    env: docker
+    rootDir: backend
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: SUMOPOD_URL
+        value: https://ai.sumopod.com
+      - key: SUMOPOD_API_KEY
+        sync: false

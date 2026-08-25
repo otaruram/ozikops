@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: oziksustain-backend
+    restart: always
+    environment:
+      - PORT=3000
+    env_file:
+      - ./backend/.env
+
+volumes:
+  caddy_data:
+  caddy_config:

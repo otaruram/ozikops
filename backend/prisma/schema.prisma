@@ -1,0 +1,139 @@
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [pgvector(map: "vector")]
+}
+
+generator client {
+  provider        = "go run github.com/steebchen/prisma-client-go"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+enum AuditSeverity {
+  HIGH_RISK
+  MEDIUM_RISK
+  COMPLIANT
+}
+
+enum BadgeStatus {
+  ACTIVE
+  INVALID
+  REVOKED
+}
+
+enum ReviewStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  NEEDS_REVISION
+}
+
+model User {
+  // Gunakan ID dari Supabase auth.users secara langsung, jangan auto-generate
+  id             String         @id 
+  email          String         @unique
+  name           String
+  avatarUrl      String?
+  company        String?
+  provider       String         @default("google")
+  creditsBalance Int            @default(3)
+  apiKey         String?        @unique
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  notifyReportDone Boolean        @default(true)
+  notifyRegulation Boolean        @default(true)
+  role             String         @default("USER")
+  isBanned         Boolean        @default(false)
+  
+  audits           ProjectAudit[]
+  reviewedAudits   ProjectAudit[] @relation("Reviewer")
+
+  @@map("users")
+}
+
+model ProjectAudit {
+  id                String            @id @default(uuid())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  equipmentName     String            @map("projectName")
+  pddFileType       String
+  
+  // METADATA DRILLBIT REPORT
+  totalPages        Int               @default(0)
+  totalWords        Int               @default(0)
+  totalSentences    Int               @default(0)
+  
+  // TEKS DOKUMEN UTUH UNTUK PANEL KIRI (Format JSON Array paragraf)
+  parsedDocumentJson Json?
+
+  feasibilityScore  Float
+  scoreLegal        Float             @default(0)
+  scoreTechnical    Float             @default(0)
+  scoreSocial       Float             @default(0)
+  scoreTransparency Float             @default(0)
+  sha256Hash        String            @unique
+  status            BadgeStatus       @default(ACTIVE)
+  
+  // REVIEW SYSTEM
+  reviewStatus      ReviewStatus      @default(PENDING_REVIEW)
+  reviewerId        String?
+  reviewer          User?             @relation("Reviewer", fields: [reviewerId], references: [id])
+  reviewFeedback    String?           @db.Text
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  issues            AuditIssue[]
+  badgeVerification BadgeVerification?
+
+  @@map("maintenance_trouble_tickets")
+}
+
+model AuditIssue {
+  id                String        @id @default(uuid())
+  auditId           String
+  audit             ProjectAudit  @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  severity          AuditSeverity
+  
+  // KOORDINAT PARAGRAF (Wajib untuk UI Highlight DrillBit)
+  pageNumber        Int           @default(1)
+  chunkIndex        Int           @default(0)
+
+  clauseText        String        @db.Text
+  matchedSop        String        @map("matchedLaw")
+  originalSopText   String        @db.Text @map("originalLawText")
+  suggestedRevision String        @db.Text
+  createdAt         DateTime      @default(now())
+
+  @@map("ticket_issues")
+}
+
+model BadgeVerification {
+  id              String       @id @default(uuid())
+  auditId         String       @unique
+  audit           ProjectAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  signedPayload   String       @db.Text
+  sha256Signature String       @unique
+  status          BadgeStatus  @default(ACTIVE)
+  verifiedAt      DateTime     @default(now())
+
+  @@map("badge_verifications")
+}
+
+model RegulasiKnowledgeBase {
+  id           String                 @id @default(uuid())
+  regName      String
+  article      String
+  content      String                 @db.Text
+  embedding    Unsupported("vector")?
+  riskCategory AuditSeverity
+  
+  // Petrochemical Knowledge Hub Metadata
+  equipmentTag  String?               @map("equipment_tag")
+  documentType  String?               @map("document_type")
+  safetyRisk    String?               @map("safety_risk")
+  
+  createdAt    DateTime               @default(now())
+
+  @@map("plant_sops_and_pids")
+}
+

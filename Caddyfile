@@ -1,0 +1,3 @@
+otaruchain.my.id {
+    reverse_proxy backend:3000
+}
