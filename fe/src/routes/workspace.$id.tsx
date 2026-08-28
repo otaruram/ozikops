@@ -84,7 +84,7 @@ function WorkspacePage() {
           <div className="bg-white p-1.5 rounded-none border-2 border-blue-900 hidden sm:block shadow-[2px_2px_0_rgba(30,58,138,1)]">
             <img src="/logo.png" alt="OzikOps" className="h-5 w-5 object-contain" />
           </div>
-          <span className="text-sm font-black tracking-widest uppercase text-blue-900 hidden sm:block">Kembali ke Dashboard</span>
+          <span className="text-sm font-black tracking-widest uppercase text-blue-900 hidden sm:block">Back to Dashboard</span>
         </Link>
         <div className="font-black uppercase tracking-widest text-blue-900 text-sm">
           Workspace Report
@@ -98,15 +98,15 @@ function WorkspacePage() {
               <div className="bg-blue-50 p-4 inline-block mb-6 border-2 border-blue-600">
                 <ShieldCheck className="h-12 w-12 text-blue-600 mx-auto" />
               </div>
-              <h2 className="text-2xl font-black text-blue-900 uppercase tracking-widest mb-4">Menunggu Tinjauan Senior Engineer</h2>
+              <h2 className="text-2xl font-black text-blue-900 uppercase tracking-widest mb-4">Waiting for Senior Engineer Review</h2>
               <p className="text-blue-900/80 font-bold leading-relaxed mb-8">
-                Dokumen Anda telah dianalisis oleh AI dan saat ini sedang dalam antrean tinjauan oleh <strong>Senior Engineer (Human-in-the-Loop)</strong> untuk memastikan akurasi mitigasi risiko. 
+                Your document has been analyzed by AI and is currently in the review queue by a <strong>Senior Engineer (Human-in-the-Loop)</strong> to ensure risk mitigation accuracy. 
                 <br /><br />
-                Setelah tinjauan selesai (Disetujui/Needs Revision/Ditolak), Anda akan menerima pemberitahuan via email dan Anda akan mendapatkan akses penuh ke laporan PDF beserta QR Badge (jika lulus).
+                Once the review is complete (Approved/Needs Revision/Rejected), you will receive an email notification and get full access to the PDF report along with a QR Badge (if passed).
               </p>
               <Link to="/dashboard">
                 <Button className="bg-blue-900 hover:bg-blue-800 text-white rounded-none border-2 border-blue-900 font-black tracking-widest uppercase px-8 h-12 shadow-[4px_4px_0_rgba(147,197,253,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 transition-all">
-                  Kembali ke Dashboard
+                  Back to Dashboard
                 </Button>
               </Link>
             </div>

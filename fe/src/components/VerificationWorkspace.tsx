@@ -405,12 +405,12 @@ export function VerificationWorkspace({
           <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:32px_32px]" />
           <div className="relative z-10 flex flex-col items-center">
             <Loader2 className="h-20 w-20 animate-spin mb-8 text-[#bfdbfe]" />
-            <h3 className="text-3xl font-black uppercase tracking-widest text-center mb-6">Analisis AI Berjalan...</h3>
+            <h3 className="text-3xl font-black uppercase tracking-widest text-center mb-6">AI Analysis In Progress...</h3>
             <div className="flex flex-col items-center gap-3">
               {[
-                { key: "parsing", label: "1. Membaca Dokumen (In-Memory)" },
-                { key: "masking", label: "2. PII Auto-Masking (UU PDP)" },
-                { key: "spatial", label: "3. Verifikasi Data Spasial" },
+                { key: "parsing", label: "1. Reading Document (In-Memory)" },
+                { key: "masking", label: "2. PII Auto-Masking (PDP Law)" },
+                { key: "spatial", label: "3. Spatial Data Verification" },
                 { key: "law", label: "4. RAG Verification SOP (Chandra Asri Knowledge Base)" },
               ].map((step) => {
                 const order = ["parsing", "masking", "spatial", "law"];

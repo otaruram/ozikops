@@ -42,7 +42,7 @@ export function ReviewerQueueTab() {
           <Eye className="h-8 w-8" />
           Senior Engineer Approval Desk
         </h2>
-        <p className="mt-2 text-white/70 font-bold text-sm">Tinjau hasil AI dan berikan keputusan final (Hit-in-the-Loop).</p>
+        <p className="mt-2 text-white/70 font-bold text-sm">Review AI results and provide final decision (Hit-in-the-Loop).</p>
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between gap-4">
@@ -51,7 +51,7 @@ export function ReviewerQueueTab() {
           <Input 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari dokumen atau pengunggah..." 
+            placeholder="Search document or uploader..." 
             className="pl-12 h-14 border-4 border-slate-800 rounded-none font-bold text-slate-800 focus-visible:ring-0 shadow-[4px_4px_0_rgba(6,78,59,1)]" 
           />
         </div>
@@ -66,9 +66,9 @@ export function ReviewerQueueTab() {
             <thead>
               <tr className="bg-slate-800 text-white border-b-4 border-slate-800">
                 <th className="p-4 font-black text-xs uppercase tracking-widest">Project Name</th>
-                <th className="p-4 font-black text-xs uppercase tracking-widest">Pengunggah</th>
+                <th className="p-4 font-black text-xs uppercase tracking-widest">Uploader</th>
                 <th className="p-4 font-black text-xs uppercase tracking-widest">Date</th>
-                <th className="p-4 font-black text-xs uppercase tracking-widest">Skor AI</th>
+                <th className="p-4 font-black text-xs uppercase tracking-widest">AI Score</th>
                 <th className="p-4 font-black text-xs uppercase tracking-widest text-right">Action</th>
               </tr>
             </thead>
@@ -81,7 +81,7 @@ export function ReviewerQueueTab() {
                 </tr>
               ) : paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-slate-800/60 font-bold">Belum ada dokumen yang menunggu review.</td>
+                  <td colSpan={5} className="p-8 text-center text-slate-800/60 font-bold">No documents waiting for review.</td>
                 </tr>
               ) : paginated.map((row) => (
                 <tr key={row.id} className="border-b-2 border-slate-800/20 hover:bg-blue-50">
@@ -97,7 +97,7 @@ export function ReviewerQueueTab() {
                   <td className="p-4 text-right">
                     <Link to="/review/$id" params={{ id: row.id }}>
                       <Button size="sm" className="rounded-none bg-yellow-400 hover:bg-yellow-500 text-slate-800 font-black text-[10px] uppercase border-2 border-slate-800 shadow-[2px_2px_0_rgba(6,78,59,1)]">
-                        Mulai Review
+                        Start Review
                       </Button>
                     </Link>
                   </td>
@@ -110,7 +110,7 @@ export function ReviewerQueueTab() {
         {Math.ceil(filtered.length / 10) > 1 && (
           <div className="p-4 border-t-4 border-slate-800 flex items-center justify-between bg-blue-50">
             <span className="text-sm font-bold text-slate-800/70">
-              Halaman {currentPage} dari {Math.ceil(filtered.length / 10)}
+              Page {currentPage} of {Math.ceil(filtered.length / 10)}
             </span>
             <div className="flex gap-2">
               <Button 

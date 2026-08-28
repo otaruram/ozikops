@@ -98,7 +98,7 @@ function ReviewerWorkspace() {
         <div className="flex-1 bg-white border-4 border-slate-800 shadow-[6px_6px_0_rgba(6,78,59,0.5)] overflow-hidden flex flex-col h-[calc(100vh-8rem)]">
           <div className="bg-blue-50 border-b-4 border-slate-800 p-4">
             <h2 className="font-black uppercase text-slate-900 tracking-widest text-lg flex items-center gap-2">
-              <FileText className="h-5 w-5" /> Hasil Analisis AI
+              <FileText className="h-5 w-5" /> AI Analysis Results
             </h2>
             <div className="text-sm font-bold text-slate-600 mt-1">
               Equipment: {audit.projectName} • Safety Score: {audit.feasibilityScore}/100
@@ -130,13 +130,13 @@ function ReviewerWorkspace() {
         {/* Right: Review Actions */}
         <div className="w-full lg:w-[400px] flex flex-col gap-6 shrink-0 h-[calc(100vh-8rem)] overflow-y-auto pr-2 pb-8">
           <div className="bg-white border-4 border-slate-800 p-6 shadow-[6px_6px_0_rgba(6,78,59,0.5)]">
-            <h3 className="font-black text-xl uppercase tracking-widest text-slate-900 mb-4 border-b-4 border-slate-800 pb-2">Keputusan Senior Engineer</h3>
+            <h3 className="font-black text-xl uppercase tracking-widest text-slate-900 mb-4 border-b-4 border-slate-800 pb-2">Senior Engineer Decision</h3>
             
             <div className="space-y-4 mb-6">
               <div>
-                <label className="text-xs font-black uppercase text-slate-900 mb-2 block">Catatan / Needs Revision (Opsional)</label>
+                <label className="text-xs font-black uppercase text-slate-900 mb-2 block">Notes / Needs Revision (Optional)</label>
                 <Textarea 
-                  placeholder="Tambahkan catatan untuk teknisi..." 
+                  placeholder="Add note for technician..." 
                   value={feedback}
                   onChange={e => setFeedback(e.target.value)}
                   className="min-h-[120px] border-4 border-slate-800 rounded-none font-bold resize-none focus-visible:ring-0"
@@ -150,7 +150,7 @@ function ReviewerWorkspace() {
                 disabled={submitting}
                 className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-none border-4 border-slate-800 font-black uppercase tracking-widest shadow-[4px_4px_0_rgba(6,78,59,0.5)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all"
               >
-                <CheckCircle2 className="h-5 w-5 mr-2" /> Diterima (Approved)
+                <CheckCircle2 className="h-5 w-5 mr-2" /> Accepted (Approved)
               </Button>
               
               <Button 
@@ -158,7 +158,7 @@ function ReviewerWorkspace() {
                 disabled={submitting}
                 className="w-full h-14 bg-yellow-400 hover:bg-yellow-500 text-slate-900 rounded-none border-4 border-slate-800 font-black uppercase tracking-widest shadow-[4px_4px_0_rgba(6,78,59,0.5)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all"
               >
-                <AlertTriangle className="h-5 w-5 mr-2" /> Perlu Needs Revision
+                <AlertTriangle className="h-5 w-5 mr-2" /> Needs Revision
               </Button>
 
               <Button 
@@ -166,14 +166,14 @@ function ReviewerWorkspace() {
                 disabled={submitting}
                 className="w-full h-14 bg-red-500 hover:bg-red-600 text-white rounded-none border-4 border-slate-800 font-black uppercase tracking-widest shadow-[4px_4px_0_rgba(6,78,59,0.5)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all"
               >
-                <XCircle className="h-5 w-5 mr-2" /> Reject (Rejected)
+                <XCircle className="h-5 w-5 mr-2" /> Rejected
               </Button>
             </div>
           </div>
           
           <div className="bg-blue-50 border-4 border-slate-800 p-4">
              <p className="text-[11px] font-bold text-slate-800 leading-relaxed uppercase">
-               Jika disetujui, dokumen akan dikunci secara kriptografis (SHA-256) dan QR Code Safe Work Protocol akan dibuat secara otomatis.
+               If approved, the document will be cryptographically locked (SHA-256) and a Safe Work Protocol QR Code will be automatically generated.
              </p>
           </div>
         </div>
