@@ -43,10 +43,6 @@ export function VerificationWorkspace({
   const [result, setResult] = useState<any>(initialResult);
   const [activeClauseId, setActiveClauseId] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
-  const [isApproving, setIsApproving] = useState(false);
-  const [isPinPromptOpen, setIsPinPromptOpen] = useState(false);
-  const [pin, setPin] = useState("");
-  const [pinError, setPinError] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
@@ -303,42 +299,6 @@ export function VerificationWorkspace({
     } catch (e) { console.error("PDF export failed:", e); alert("Failed to export PDF."); }
   };
 
-  const handleBiometricApprove = async () => {
-    // If PIN prompt is not open, open it first
-    if (!isPinPromptOpen) {
-      setIsPinPromptOpen(true);
-      setPin("");
-      setPinError(false);
-      return;
-    }
-
-    // Verify PIN
-    if (pin !== "123456") {
-      setPinError(true);
-      toast.error("Incorrect Authorization PIN!");
-      return;
-    }
-
-    setIsPinPromptOpen(false);
-
-    try {
-      setIsApproving(true);
-      // Simulate WebAuthn Biometric Delay with an overlay
-      await new Promise(r => setTimeout(r, 2500)); // Increased to 2.5s for dramatic effect in video
-      // Call mock endpoint or update local state
-      setResult((prev: any) => ({
-        ...prev,
-        reviewStatus: "APPROVED",
-        sha256Hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-      }));
-      toast.success("Biometric Signature Verified", { description: "Cryptographic SHA-256 Badge generated." });
-    } catch (e) {
-      toast.error("Biometric Verification Failed");
-    } finally {
-      setIsApproving(false);
-    }
-  };
-
   // Normalize status: backend returns "high"/"medium"/"compliant" (guest) OR "HIGH_RISK"/"MEDIUM_RISK"/"COMPLIANT" (pro)
   const norm = (s: string) => { const l = s?.toLowerCase() || ""; return l.includes("high") ? "high" : l.includes("medium") ? "medium" : "compliant"; };
   const getBg = (s: string) => { const n = norm(s); return n === "high" ? "#FEE2E2" : n === "medium" ? "#FEF3C7" : "#D1FAE5"; };
@@ -476,59 +436,6 @@ export function VerificationWorkspace({
   return (
     <div ref={reportRef} className="w-full border-4 border-[#1e3a8a] bg-white shadow-[12px_12px_0_rgba(30,58,138,1)] flex flex-col font-sans relative" style={{ minHeight: "600px" }}>
       
-      {/* ══ PIN PROMPT OVERLAY ══ */}
-      {isPinPromptOpen && (
-        <div className="absolute inset-0 z-50 bg-[#1e3a8a]/90 backdrop-blur-md flex flex-col items-center justify-center text-white">
-          <div className="bg-white p-8 border-4 border-[#1e3a8a] shadow-[8px_8px_0_rgba(56,189,248,1)] max-w-sm w-full text-center">
-            <Lock className="h-12 w-12 text-[#1e3a8a] mx-auto mb-4" />
-            <h3 className="text-xl font-black uppercase text-[#1e3a8a] mb-2">Authorization Required</h3>
-            <p className="text-xs font-bold text-slate-500 mb-6">Enter the 6-digit Senior Engineer Authorization PIN to sign this document.</p>
-            
-            <div className="flex justify-center mb-6 text-slate-800">
-              <InputOTP maxLength={6} value={pin} onChange={(v) => { setPin(v); setPinError(false); }}>
-                <InputOTPGroup className="gap-2">
-                  {[...Array(6)].map((_, i) => (
-                    <InputOTPSlot key={i} index={i} className={`h-12 w-12 text-lg font-black border-2 rounded-none shadow-[2px_2px_0_rgba(0,0,0,0.3)] ${pinError ? 'border-red-500 bg-red-50' : 'border-[#1e3a8a]'}`} />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
-            </div>
-            
-            <div className="flex gap-3">
-              <Button onClick={() => setIsPinPromptOpen(false)} className="flex-1 rounded-none border-2 border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black uppercase text-xs">Cancel</Button>
-              <Button onClick={handleBiometricApprove} disabled={pin.length < 6} className="flex-1 rounded-none border-2 border-[#1e3a8a] bg-[#bfdbfe] hover:bg-yellow-400 text-[#1e3a8a] font-black uppercase text-xs shadow-[4px_4px_0_rgba(30,58,138,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">Authorize</Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ══ FAKE BIOMETRIC OVERLAY FOR DEMO ══ */}
-      {isApproving && (
-        <div className="absolute inset-0 z-50 bg-[#1e3a8a]/90 backdrop-blur-md flex flex-col items-center justify-center text-white overflow-hidden">
-          <div className="relative">
-            <div className="absolute inset-0 bg-sky-400 rounded-full blur-3xl opacity-20 animate-pulse"></div>
-            <div className="relative w-32 h-32 border-4 border-sky-400 rounded-full flex items-center justify-center mb-6 overflow-hidden">
-              <ScanFace className="w-16 h-16 text-sky-400" />
-              <div className="absolute top-0 left-0 w-full h-2 bg-sky-300 shadow-[0_0_15px_rgba(56,189,248,1)] animate-[scan_1.5s_ease-in-out_infinite_alternate]" style={{
-                animation: "scan 1s ease-in-out infinite alternate"
-              }} />
-              <style>{`
-                @keyframes scan {
-                  0% { transform: translateY(-10px); }
-                  100% { transform: translateY(130px); }
-                }
-              `}</style>
-            </div>
-          </div>
-          <h2 className="text-2xl font-black uppercase tracking-widest text-sky-400 mb-2">WebAuthn Request</h2>
-          <p className="text-sm font-bold opacity-80 mb-8 uppercase">Awaiting Senior Engineer Biometric Scan...</p>
-          <div className="flex gap-2 items-center">
-            <Fingerprint className="h-5 w-5 text-sky-300 animate-pulse" />
-            <span className="text-xs font-bold uppercase text-sky-300 tracking-wider">Verifying Cryptographic Keys</span>
-          </div>
-        </div>
-      )}
-
       {/* ══ TOP BAR ══ */}
       <div className="border-b-4 border-[#1e3a8a] bg-[#1e3a8a] px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
@@ -609,16 +516,6 @@ export function VerificationWorkspace({
                     <p className="text-xs mt-1 font-bold opacity-70">Awaiting cryptographic signature from Senior Operations Manager.</p>
                   )}
                 </div>
-                {result.reviewStatus === 'PENDING_REVIEW' && (
-                  <Button
-                    onClick={handleBiometricApprove}
-                    disabled={isApproving}
-                    className="bg-blue-900 hover:bg-blue-800 text-white font-black uppercase tracking-widest border-2 border-sky-400 shadow-[4px_4px_0_rgba(30,58,138,0.5)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all rounded-none h-12 px-6"
-                  >
-                    {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Fingerprint className="h-5 w-5 mr-2" />}
-                    Biometric Micro-Approve
-                  </Button>
-                )}
               </div>
             </div>
           )}
