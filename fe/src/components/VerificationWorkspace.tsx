@@ -4,7 +4,7 @@ import {
   Upload, Lock, Loader2, AlertTriangle, Globe, ShieldCheck, Zap,
   CheckCircle2, BookOpen, Copy, ChevronLeft, ChevronRight, FileText,
   ZoomIn, ZoomOut, Download, Fingerprint, Calendar, Hash, FileStack,
-  Scale, Building2, Wand2,
+  Scale, Building2, Wand2, ScanFace
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -302,8 +302,8 @@ export function VerificationWorkspace({
   const handleBiometricApprove = async () => {
     try {
       setIsApproving(true);
-      // Simulate WebAuthn Biometric Delay
-      await new Promise(r => setTimeout(r, 1500));
+      // Simulate WebAuthn Biometric Delay with an overlay
+      await new Promise(r => setTimeout(r, 2500)); // Increased to 2.5s for dramatic effect in video
       // Call mock endpoint or update local state
       setResult((prev: any) => ({
         ...prev,
@@ -453,7 +453,35 @@ export function VerificationWorkspace({
 
   // ─── RESULT ───
   return (
-    <div ref={reportRef} className="w-full border-4 border-[#1e3a8a] bg-white shadow-[12px_12px_0_rgba(30,58,138,1)] flex flex-col font-sans" style={{ minHeight: "600px" }}>
+    <div ref={reportRef} className="w-full border-4 border-[#1e3a8a] bg-white shadow-[12px_12px_0_rgba(30,58,138,1)] flex flex-col font-sans relative" style={{ minHeight: "600px" }}>
+      
+      {/* ══ FAKE BIOMETRIC OVERLAY FOR DEMO ══ */}
+      {isApproving && (
+        <div className="absolute inset-0 z-50 bg-[#1e3a8a]/90 backdrop-blur-md flex flex-col items-center justify-center text-white overflow-hidden">
+          <div className="relative">
+            <div className="absolute inset-0 bg-sky-400 rounded-full blur-3xl opacity-20 animate-pulse"></div>
+            <div className="relative w-32 h-32 border-4 border-sky-400 rounded-full flex items-center justify-center mb-6 overflow-hidden">
+              <ScanFace className="w-16 h-16 text-sky-400" />
+              <div className="absolute top-0 left-0 w-full h-2 bg-sky-300 shadow-[0_0_15px_rgba(56,189,248,1)] animate-[scan_1.5s_ease-in-out_infinite_alternate]" style={{
+                animation: "scan 1s ease-in-out infinite alternate"
+              }} />
+              <style>{`
+                @keyframes scan {
+                  0% { transform: translateY(-10px); }
+                  100% { transform: translateY(130px); }
+                }
+              `}</style>
+            </div>
+          </div>
+          <h2 className="text-2xl font-black uppercase tracking-widest text-sky-400 mb-2">WebAuthn Request</h2>
+          <p className="text-sm font-bold opacity-80 mb-8 uppercase">Awaiting Senior Engineer Biometric Scan...</p>
+          <div className="flex gap-2 items-center">
+            <Fingerprint className="h-5 w-5 text-sky-300 animate-pulse" />
+            <span className="text-xs font-bold uppercase text-sky-300 tracking-wider">Verifying Cryptographic Keys</span>
+          </div>
+        </div>
+      )}
+
       {/* ══ TOP BAR ══ */}
       <div className="border-b-4 border-[#1e3a8a] bg-[#1e3a8a] px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
