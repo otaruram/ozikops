@@ -27,7 +27,6 @@ function ReviewerWorkspace() {
   const [isPinPromptOpen, setIsPinPromptOpen] = useState(false);
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState(false);
-  const [isApproving, setIsApproving] = useState(false);
   const [pendingVerdict, setPendingVerdict] = useState<string | null>(null);
 
   useEffect(() => {
@@ -77,13 +76,7 @@ function ReviewerWorkspace() {
     }
     
     setIsPinPromptOpen(false);
-    setIsApproving(true);
-    
-    // Simulate WebAuthn Biometric Delay
-    await new Promise(r => setTimeout(r, 2500));
-    
-    setIsApproving(false);
-    toast.success("Biometric Signature Verified", { description: "Cryptographic SHA-256 Badge generated." });
+    toast.success("Authorization Verified", { description: "Cryptographic SHA-256 Badge generated." });
     submitReview(pendingVerdict!);
   };
 
@@ -185,7 +178,7 @@ function ReviewerWorkspace() {
             <div className="space-y-3">
               <Button 
                 onClick={() => handleAction('APPROVED')}
-                disabled={submitting || isApproving}
+                disabled={submitting}
                 className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-none border-4 border-slate-800 font-black uppercase tracking-widest shadow-[4px_4px_0_rgba(6,78,59,0.5)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all"
               >
                 <CheckCircle2 className="h-5 w-5 mr-2" /> Accepted (Approved)
@@ -193,7 +186,7 @@ function ReviewerWorkspace() {
               
               <Button 
                 onClick={() => handleAction('NEEDS_REVISION')}
-                disabled={submitting || isApproving}
+                disabled={submitting}
                 className="w-full h-14 bg-yellow-400 hover:bg-yellow-500 text-slate-900 rounded-none border-4 border-slate-800 font-black uppercase tracking-widest shadow-[4px_4px_0_rgba(6,78,59,0.5)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all"
               >
                 <AlertTriangle className="h-5 w-5 mr-2" /> Needs Revision
@@ -201,7 +194,7 @@ function ReviewerWorkspace() {
 
               <Button 
                 onClick={() => handleAction('REJECTED')}
-                disabled={submitting || isApproving}
+                disabled={submitting}
                 className="w-full h-14 bg-red-500 hover:bg-red-600 text-white rounded-none border-4 border-slate-800 font-black uppercase tracking-widest shadow-[4px_4px_0_rgba(6,78,59,0.5)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all"
               >
                 <XCircle className="h-5 w-5 mr-2" /> Rejected
@@ -223,7 +216,7 @@ function ReviewerWorkspace() {
           <div className="bg-white p-8 border-4 border-[#1e3a8a] shadow-[8px_8px_0_rgba(56,189,248,1)] max-w-sm w-full text-center">
             <Lock className="h-12 w-12 text-[#1e3a8a] mx-auto mb-4" />
             <h3 className="text-xl font-black uppercase text-[#1e3a8a] mb-2">Authorization Required</h3>
-            <p className="text-xs font-bold text-slate-500 mb-6">Enter the 6-digit Senior Engineer Authorization PIN to sign this document.</p>
+            <p className="text-xs font-bold text-slate-500 mb-6">Masukkan 6 digit Secure PIN yang dikirim ke email Anda untuk menandatangani dokumen ini.</p>
             
             <div className="flex justify-center mb-6 text-slate-800">
               <InputOTP maxLength={6} value={pin} onChange={(v) => { setPin(v); setPinError(false); }}>
@@ -236,36 +229,9 @@ function ReviewerWorkspace() {
             </div>
             
             <div className="flex gap-3">
-              <Button onClick={() => setIsPinPromptOpen(false)} className="flex-1 rounded-none border-2 border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black uppercase text-xs">Cancel</Button>
-              <Button onClick={handleBiometricApprove} disabled={pin.length < 6} className="flex-1 rounded-none border-2 border-[#1e3a8a] bg-[#bfdbfe] hover:bg-yellow-400 text-[#1e3a8a] font-black uppercase text-xs shadow-[4px_4px_0_rgba(30,58,138,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">Authorize</Button>
+              <Button onClick={() => setIsPinPromptOpen(false)} className="flex-1 rounded-none border-2 border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black uppercase text-xs">Batal</Button>
+              <Button onClick={handleBiometricApprove} disabled={pin.length < 6} className="flex-1 rounded-none border-2 border-[#1e3a8a] bg-[#bfdbfe] hover:bg-yellow-400 text-[#1e3a8a] font-black uppercase text-xs shadow-[4px_4px_0_rgba(30,58,138,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">Verifikasi PIN</Button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* ══ FAKE BIOMETRIC OVERLAY FOR DEMO ══ */}
-      {isApproving && (
-        <div className="fixed inset-0 z-[100] bg-[#1e3a8a]/90 backdrop-blur-md flex flex-col items-center justify-center text-white overflow-hidden">
-          <div className="relative">
-            <div className="absolute inset-0 bg-sky-400 rounded-full blur-3xl opacity-20 animate-pulse"></div>
-            <div className="relative w-32 h-32 border-4 border-sky-400 rounded-full flex items-center justify-center mb-6 overflow-hidden">
-              <ScanFace className="w-16 h-16 text-sky-400" />
-              <div className="absolute top-0 left-0 w-full h-2 bg-sky-300 shadow-[0_0_15px_rgba(56,189,248,1)] animate-[scan_1.5s_ease-in-out_infinite_alternate]" style={{
-                animation: "scan 1s ease-in-out infinite alternate"
-              }} />
-              <style>{`
-                @keyframes scan {
-                  0% { transform: translateY(-10px); }
-                  100% { transform: translateY(130px); }
-                }
-              `}</style>
-            </div>
-          </div>
-          <h2 className="text-2xl font-black uppercase tracking-widest text-sky-400 mb-2">WebAuthn Request</h2>
-          <p className="text-sm font-bold opacity-80 mb-8 uppercase">Awaiting Senior Engineer Biometric Scan...</p>
-          <div className="flex gap-2 items-center">
-            <Fingerprint className="h-5 w-5 text-sky-300 animate-pulse" />
-            <span className="text-xs font-bold uppercase text-sky-300 tracking-wider">Verifying Cryptographic Keys</span>
           </div>
         </div>
       )}
