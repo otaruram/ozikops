@@ -3,10 +3,11 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { apiFetch } from "@/lib/api";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, ShieldCheck, AlertTriangle, FileText, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, ArrowLeft, ShieldCheck, AlertTriangle, FileText, CheckCircle2, XCircle, Fingerprint, Lock, ScanFace } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { VerificationWorkspace } from "@/components/VerificationWorkspace";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 export const Route = createFileRoute("/review/$id")({
   head: () => ({
@@ -23,6 +24,11 @@ function ReviewerWorkspace() {
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isPinPromptOpen, setIsPinPromptOpen] = useState(false);
+  const [pin, setPin] = useState("");
+  const [pinError, setPinError] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const [pendingVerdict, setPendingVerdict] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -45,11 +51,43 @@ function ReviewerWorkspace() {
     }
   };
 
-  const submitReview = async (verdict: string) => {
+  const handleAction = async (verdict: string) => {
     if (verdict !== "APPROVED" && !feedback.trim()) {
       toast.error("Tolong berikan feedback mengapa ditolak/perlu direvisi.");
       return;
     }
+    
+    // Trigger PIN & Biometric if Approved
+    if (verdict === "APPROVED") {
+      setPendingVerdict(verdict);
+      setIsPinPromptOpen(true);
+      setPin("");
+      setPinError(false);
+    } else {
+      // Just submit directly for Needs Revision / Rejected
+      submitReview(verdict);
+    }
+  };
+
+  const handleBiometricApprove = async () => {
+    if (pin !== "123456") {
+      setPinError(true);
+      toast.error("Incorrect Authorization PIN!");
+      return;
+    }
+    
+    setIsPinPromptOpen(false);
+    setIsApproving(true);
+    
+    // Simulate WebAuthn Biometric Delay
+    await new Promise(r => setTimeout(r, 2500));
+    
+    setIsApproving(false);
+    toast.success("Biometric Signature Verified", { description: "Cryptographic SHA-256 Badge generated." });
+    submitReview(pendingVerdict!);
+  };
+
+  const submitReview = async (verdict: string) => {
     setSubmitting(true);
     try {
       await apiFetch(`/reviewer/audit/${id}/review`, {
@@ -146,24 +184,24 @@ function ReviewerWorkspace() {
 
             <div className="space-y-3">
               <Button 
-                onClick={() => submitReview('APPROVED')}
-                disabled={submitting}
+                onClick={() => handleAction('APPROVED')}
+                disabled={submitting || isApproving}
                 className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-none border-4 border-slate-800 font-black uppercase tracking-widest shadow-[4px_4px_0_rgba(6,78,59,0.5)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all"
               >
                 <CheckCircle2 className="h-5 w-5 mr-2" /> Accepted (Approved)
               </Button>
               
               <Button 
-                onClick={() => submitReview('NEEDS_REVISION')}
-                disabled={submitting}
+                onClick={() => handleAction('NEEDS_REVISION')}
+                disabled={submitting || isApproving}
                 className="w-full h-14 bg-yellow-400 hover:bg-yellow-500 text-slate-900 rounded-none border-4 border-slate-800 font-black uppercase tracking-widest shadow-[4px_4px_0_rgba(6,78,59,0.5)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all"
               >
                 <AlertTriangle className="h-5 w-5 mr-2" /> Needs Revision
               </Button>
 
               <Button 
-                onClick={() => submitReview('REJECTED')}
-                disabled={submitting}
+                onClick={() => handleAction('REJECTED')}
+                disabled={submitting || isApproving}
                 className="w-full h-14 bg-red-500 hover:bg-red-600 text-white rounded-none border-4 border-slate-800 font-black uppercase tracking-widest shadow-[4px_4px_0_rgba(6,78,59,0.5)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all"
               >
                 <XCircle className="h-5 w-5 mr-2" /> Rejected
@@ -178,6 +216,60 @@ function ReviewerWorkspace() {
           </div>
         </div>
       </main>
+
+      {/* ══ PIN PROMPT OVERLAY ══ */}
+      {isPinPromptOpen && (
+        <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex flex-col items-center justify-center text-white">
+          <div className="bg-white p-8 border-4 border-[#1e3a8a] shadow-[8px_8px_0_rgba(56,189,248,1)] max-w-sm w-full text-center">
+            <Lock className="h-12 w-12 text-[#1e3a8a] mx-auto mb-4" />
+            <h3 className="text-xl font-black uppercase text-[#1e3a8a] mb-2">Authorization Required</h3>
+            <p className="text-xs font-bold text-slate-500 mb-6">Enter the 6-digit Senior Engineer Authorization PIN to sign this document.</p>
+            
+            <div className="flex justify-center mb-6 text-slate-800">
+              <InputOTP maxLength={6} value={pin} onChange={(v) => { setPin(v); setPinError(false); }}>
+                <InputOTPGroup className="gap-2">
+                  {[...Array(6)].map((_, i) => (
+                    <InputOTPSlot key={i} index={i} className={`h-12 w-12 text-lg font-black border-2 rounded-none shadow-[2px_2px_0_rgba(0,0,0,0.3)] ${pinError ? 'border-red-500 bg-red-50' : 'border-[#1e3a8a]'}`} />
+                  ))}
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button onClick={() => setIsPinPromptOpen(false)} className="flex-1 rounded-none border-2 border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black uppercase text-xs">Cancel</Button>
+              <Button onClick={handleBiometricApprove} disabled={pin.length < 6} className="flex-1 rounded-none border-2 border-[#1e3a8a] bg-[#bfdbfe] hover:bg-yellow-400 text-[#1e3a8a] font-black uppercase text-xs shadow-[4px_4px_0_rgba(30,58,138,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">Authorize</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══ FAKE BIOMETRIC OVERLAY FOR DEMO ══ */}
+      {isApproving && (
+        <div className="fixed inset-0 z-[100] bg-[#1e3a8a]/90 backdrop-blur-md flex flex-col items-center justify-center text-white overflow-hidden">
+          <div className="relative">
+            <div className="absolute inset-0 bg-sky-400 rounded-full blur-3xl opacity-20 animate-pulse"></div>
+            <div className="relative w-32 h-32 border-4 border-sky-400 rounded-full flex items-center justify-center mb-6 overflow-hidden">
+              <ScanFace className="w-16 h-16 text-sky-400" />
+              <div className="absolute top-0 left-0 w-full h-2 bg-sky-300 shadow-[0_0_15px_rgba(56,189,248,1)] animate-[scan_1.5s_ease-in-out_infinite_alternate]" style={{
+                animation: "scan 1s ease-in-out infinite alternate"
+              }} />
+              <style>{`
+                @keyframes scan {
+                  0% { transform: translateY(-10px); }
+                  100% { transform: translateY(130px); }
+                }
+              `}</style>
+            </div>
+          </div>
+          <h2 className="text-2xl font-black uppercase tracking-widest text-sky-400 mb-2">WebAuthn Request</h2>
+          <p className="text-sm font-bold opacity-80 mb-8 uppercase">Awaiting Senior Engineer Biometric Scan...</p>
+          <div className="flex gap-2 items-center">
+            <Fingerprint className="h-5 w-5 text-sky-300 animate-pulse" />
+            <span className="text-xs font-bold uppercase text-sky-300 tracking-wider">Verifying Cryptographic Keys</span>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
