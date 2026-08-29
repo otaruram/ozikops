@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import {
   Upload, Lock, Loader2, AlertTriangle, Globe, ShieldCheck, Zap,
   CheckCircle2, BookOpen, Copy, ChevronLeft, ChevronRight, FileText,
@@ -43,6 +44,9 @@ export function VerificationWorkspace({
   const [activeClauseId, setActiveClauseId] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
+  const [isPinPromptOpen, setIsPinPromptOpen] = useState(false);
+  const [pin, setPin] = useState("");
+  const [pinError, setPinError] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
@@ -300,6 +304,23 @@ export function VerificationWorkspace({
   };
 
   const handleBiometricApprove = async () => {
+    // If PIN prompt is not open, open it first
+    if (!isPinPromptOpen) {
+      setIsPinPromptOpen(true);
+      setPin("");
+      setPinError(false);
+      return;
+    }
+
+    // Verify PIN
+    if (pin !== "123456") {
+      setPinError(true);
+      toast.error("Incorrect Authorization PIN!");
+      return;
+    }
+
+    setIsPinPromptOpen(false);
+
     try {
       setIsApproving(true);
       // Simulate WebAuthn Biometric Delay with an overlay
@@ -455,6 +476,32 @@ export function VerificationWorkspace({
   return (
     <div ref={reportRef} className="w-full border-4 border-[#1e3a8a] bg-white shadow-[12px_12px_0_rgba(30,58,138,1)] flex flex-col font-sans relative" style={{ minHeight: "600px" }}>
       
+      {/* ══ PIN PROMPT OVERLAY ══ */}
+      {isPinPromptOpen && (
+        <div className="absolute inset-0 z-50 bg-[#1e3a8a]/90 backdrop-blur-md flex flex-col items-center justify-center text-white">
+          <div className="bg-white p-8 border-4 border-[#1e3a8a] shadow-[8px_8px_0_rgba(56,189,248,1)] max-w-sm w-full text-center">
+            <Lock className="h-12 w-12 text-[#1e3a8a] mx-auto mb-4" />
+            <h3 className="text-xl font-black uppercase text-[#1e3a8a] mb-2">Authorization Required</h3>
+            <p className="text-xs font-bold text-slate-500 mb-6">Enter the 6-digit Senior Engineer Authorization PIN to sign this document.</p>
+            
+            <div className="flex justify-center mb-6 text-slate-800">
+              <InputOTP maxLength={6} value={pin} onChange={(v) => { setPin(v); setPinError(false); }}>
+                <InputOTPGroup className="gap-2">
+                  {[...Array(6)].map((_, i) => (
+                    <InputOTPSlot key={i} index={i} className={`h-12 w-12 text-lg font-black border-2 rounded-none shadow-[2px_2px_0_rgba(0,0,0,0.3)] ${pinError ? 'border-red-500 bg-red-50' : 'border-[#1e3a8a]'}`} />
+                  ))}
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button onClick={() => setIsPinPromptOpen(false)} className="flex-1 rounded-none border-2 border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black uppercase text-xs">Cancel</Button>
+              <Button onClick={handleBiometricApprove} disabled={pin.length < 6} className="flex-1 rounded-none border-2 border-[#1e3a8a] bg-[#bfdbfe] hover:bg-yellow-400 text-[#1e3a8a] font-black uppercase text-xs shadow-[4px_4px_0_rgba(30,58,138,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">Authorize</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ══ FAKE BIOMETRIC OVERLAY FOR DEMO ══ */}
       {isApproving && (
         <div className="absolute inset-0 z-50 bg-[#1e3a8a]/90 backdrop-blur-md flex flex-col items-center justify-center text-white overflow-hidden">
