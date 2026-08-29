@@ -17,6 +17,7 @@ type AuditRepository interface {
 	DeleteAudit(ctx context.Context, id string, userID string) error
 	GetPendingAudits(ctx context.Context) ([]domain.ProjectAudit, error)
 	UpdateReviewStatus(ctx context.Context, auditID string, reviewerID string, status db.ReviewStatus, feedback string) error
+	UpdateMicroApprove(ctx context.Context, auditID string, sha256Hash string) error
 }
 
 type auditRepository struct {
@@ -376,6 +377,17 @@ func (r *auditRepository) UpdateReviewStatus(ctx context.Context, auditID string
 		db.ProjectAudit.ReviewStatus.Set(status),
 		db.ProjectAudit.ReviewerID.Set(reviewerID),
 		db.ProjectAudit.ReviewFeedback.Set(feedback),
+	).Exec(ctx)
+	return err
+}
+
+func (r *auditRepository) UpdateMicroApprove(ctx context.Context, auditID string, sha256Hash string) error {
+	_, err := r.client.ProjectAudit.FindUnique(
+		db.ProjectAudit.ID.Equals(auditID),
+	).Update(
+		db.ProjectAudit.ReviewStatus.Set(db.ReviewStatusApproved),
+		db.ProjectAudit.Sha256Hash.Set(sha256Hash),
+		db.ProjectAudit.ReviewFeedback.Set("Approved via Biometric Micro-Approve"),
 	).Exec(ctx)
 	return err
 }

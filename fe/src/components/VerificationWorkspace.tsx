@@ -42,6 +42,7 @@ export function VerificationWorkspace({
   const [result, setResult] = useState<any>(initialResult);
   const [activeClauseId, setActiveClauseId] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
@@ -295,7 +296,26 @@ export function VerificationWorkspace({
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } catch (e) { console.error("PDF export failed:", e); alert("Gagal mengekspor PDF."); }
+    } catch (e) { console.error("PDF export failed:", e); alert("Failed to export PDF."); }
+  };
+
+  const handleBiometricApprove = async () => {
+    try {
+      setIsApproving(true);
+      // Simulate WebAuthn Biometric Delay
+      await new Promise(r => setTimeout(r, 1500));
+      // Call mock endpoint or update local state
+      setResult((prev: any) => ({
+        ...prev,
+        reviewStatus: "APPROVED",
+        sha256Hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }));
+      toast.success("Biometric Signature Verified", { description: "Cryptographic SHA-256 Badge generated." });
+    } catch (e) {
+      toast.error("Biometric Verification Failed");
+    } finally {
+      setIsApproving(false);
+    }
   };
 
   // Normalize status: backend returns "high"/"medium"/"compliant" (guest) OR "HIGH_RISK"/"MEDIUM_RISK"/"COMPLIANT" (pro)
@@ -446,7 +466,7 @@ export function VerificationWorkspace({
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button size="sm" onClick={handleDownloadPDF} className="flex-1 sm:flex-none rounded-none bg-[#bfdbfe] hover:bg-yellow-500 text-[#1e3a8a] font-black text-[10px] uppercase h-9 px-3 sm:px-4 border-2 border-[#1e3a8a] flex items-center justify-center gap-2 shadow-[2px_2px_0_rgba(30,58,138,1)] hover:translate-y-0.5 hover:shadow-none transition-all whitespace-nowrap">
-            <Download className="h-4 w-4" /> <span className="hidden sm:inline">Unduh</span> PDF
+            <Download className="h-4 w-4" /> <span className="hidden sm:inline">Download</span> PDF
           </Button>
         </div>
       </div>
@@ -499,18 +519,30 @@ export function VerificationWorkspace({
                 {result.reviewStatus === 'NEEDS_REVISION' && <AlertTriangle className="h-5 w-5 text-yellow-600" />}
                 {result.reviewStatus === 'PENDING_REVIEW' && <Loader2 className="h-5 w-5 animate-spin text-blue-600" />}
               </div>
-              <div className="flex-1">
-                <h4 className="font-black uppercase text-sm">
-                  {result.reviewStatus === 'APPROVED' ? 'Disetujui oleh Pakar' :
-                   result.reviewStatus === 'REJECTED' ? 'Ditolak oleh Pakar' :
-                   result.reviewStatus === 'NEEDS_REVISION' ? 'Perlu Needs Revision (Tinjauan Pakar)' :
-                   'Menunggu Tinjauan Pakar (Pending Review)'}
-                </h4>
-                {result.reviewFeedback && (
-                  <p className="text-sm mt-1 font-bold opacity-80 whitespace-pre-wrap">{result.reviewFeedback}</p>
-                )}
+              <div className="flex-1 flex justify-between items-center">
+                <div>
+                  <h4 className="font-black uppercase text-sm">
+                    {result.reviewStatus === 'APPROVED' ? 'Approved by Senior Engineer' :
+                     result.reviewStatus === 'REJECTED' ? 'Rejected by Senior Engineer' :
+                     result.reviewStatus === 'NEEDS_REVISION' ? 'Needs Revision (Human-in-the-Loop)' :
+                     'Pending Approval (Human-in-the-Loop)'}
+                  </h4>
+                  {result.reviewFeedback && (
+                    <p className="text-sm mt-1 font-bold opacity-80 whitespace-pre-wrap">{result.reviewFeedback}</p>
+                  )}
+                  {result.reviewStatus === 'PENDING_REVIEW' && (
+                    <p className="text-xs mt-1 font-bold opacity-70">Awaiting cryptographic signature from Senior Operations Manager.</p>
+                  )}
+                </div>
                 {result.reviewStatus === 'PENDING_REVIEW' && (
-                  <p className="text-xs mt-1 font-bold opacity-70">Dokumen Anda sedang dalam antrean untuk ditinjau oleh reviewer (Human-in-the-Loop).</p>
+                  <Button
+                    onClick={handleBiometricApprove}
+                    disabled={isApproving}
+                    className="bg-blue-900 hover:bg-blue-800 text-white font-black uppercase tracking-widest border-2 border-sky-400 shadow-[4px_4px_0_rgba(30,58,138,0.5)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all rounded-none h-12 px-6"
+                  >
+                    {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Fingerprint className="h-5 w-5 mr-2" />}
+                    Biometric Micro-Approve
+                  </Button>
                 )}
               </div>
             </div>

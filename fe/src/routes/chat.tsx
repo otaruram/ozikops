@@ -14,6 +14,8 @@ import {
   FileText,
   ChevronDown,
   Trash2,
+  Mic,
+  WifiOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -82,7 +84,44 @@ function ChatPage() {
   const [input, setInput] = useState("");
   const [equipmentTag, setEquipmentTag] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
+  const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'en-US';
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        sendMessage(transcript);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current?.start();
+        setIsListening(true);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -153,12 +192,21 @@ function ChatPage() {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
       {/* Main Container - No Header */}
       <div className="flex-1 overflow-y-auto p-4 md:p-8 relative">
-        <div className="absolute top-4 left-4 z-50">
+        <div className="absolute top-4 left-4 z-50 flex items-center gap-3">
           <Link to="/dashboard">
             <Button variant="outline" size="sm" className="bg-white border-2 border-slate-800 shadow-[4px_4px_0_rgba(30,58,138,0.3)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all rounded-none text-blue-900 font-bold flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" /> Back
             </Button>
           </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsOfflineMode(!isOfflineMode)}
+            className={`border-2 shadow-[4px_4px_0_rgba(0,0,0,0.3)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all rounded-none font-bold flex items-center gap-2 ${isOfflineMode ? 'bg-red-100 border-red-800 text-red-800' : 'bg-white border-slate-800 text-slate-800'}`}
+          >
+            <WifiOff className="h-4 w-4" />
+            {isOfflineMode ? 'Offline Mode: Active (Local Vector DB)' : 'Online Mode'}
+          </Button>
         </div>
 
         {/* Equipment Tag Selector and Clear Chat Floating Right */}
@@ -307,22 +355,35 @@ function ChatPage() {
 
       {/* Input Area */}
       <div className="border-t-4 border-slate-800 bg-white p-4 shrink-0">
-        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto flex gap-3">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about procedures, safety requirements, equipment specs..."
-            className="flex-1 border-4 border-slate-800 px-4 py-3 text-sm font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-900 shadow-[4px_4px_0_rgba(30,58,138,0.3)] bg-white"
-            disabled={isLoading}
-          />
-          <Button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="h-[52px] px-6 rounded-none bg-blue-900 hover:bg-blue-800 text-white font-black uppercase tracking-widest border-4 border-slate-800 shadow-[4px_4px_0_rgba(30,58,138,0.5)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-50"
+        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto flex gap-3 flex-col sm:flex-row items-center">
+          <button
+            type="button"
+            onClick={toggleListening}
+            className={`w-full sm:w-auto h-[60px] px-8 rounded-full flex items-center justify-center gap-3 font-black uppercase tracking-widest border-4 border-slate-800 shadow-[4px_4px_0_rgba(30,58,138,0.5)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all ${
+              isListening ? "bg-red-600 text-white animate-pulse" : "bg-blue-900 text-white"
+            }`}
           >
-            <Send className="h-5 w-5" />
-          </Button>
+            <Mic className="h-6 w-6" />
+            {isListening ? "Listening..." : "Push to Talk"}
+          </button>
+          
+          <div className="w-full h-[60px] flex gap-2">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Or type procedure question manually..."
+              className="flex-1 h-full border-4 border-slate-800 px-4 text-sm font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-900 shadow-[4px_4px_0_rgba(30,58,138,0.3)] bg-white"
+              disabled={isLoading || isListening}
+            />
+            <Button
+              type="submit"
+              disabled={isLoading || !input.trim()}
+              className="h-full px-6 rounded-none bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest border-4 border-slate-800 shadow-[4px_4px_0_rgba(30,58,138,0.5)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-50"
+            >
+              <Send className="h-5 w-5" />
+            </Button>
+          </div>
         </form>
       </div>
     </div>

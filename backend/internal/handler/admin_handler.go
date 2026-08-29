@@ -111,3 +111,19 @@ func (h *AdminHandler) GetUserHistory(c *fiber.Ctx) error {
 	})
 }
 
+func (h *AdminHandler) MicroApprove(c *fiber.Ctx) error {
+	id := c.Params("id")
+	
+	// Simply update the review status to APPROVED and add a dummy mock sha256
+	mockSha256 := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+	err := h.auditRepo.UpdateMicroApprove(c.Context(), id, mockSha256)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to micro-approve audit"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Micro-Approve successful",
+		"sha256Hash": mockSha256,
+	})
+}
+

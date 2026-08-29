@@ -115,6 +115,7 @@ func main() {
 	admin.Put("/users/:id/ban", adminHandler.ToggleBanUser)
 	admin.Put("/users/:id/role", adminHandler.UpdateUserRole)
 	admin.Get("/users/:id/history", adminHandler.GetUserHistory)
+	admin.Put("/audit/:id/micro-approve", adminHandler.MicroApprove)
 
 	// Reviewer Routes
 	reviewer := v1.Group("/reviewer", middleware.SupabaseAuthMiddleware(cfg, userRepo, emailService), middleware.ReviewerMiddleware(cfg, userRepo))
