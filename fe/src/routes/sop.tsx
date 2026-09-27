@@ -26,21 +26,21 @@ const DEFAULT_RECOMMENDATIONS = [
     regName: "SOP-MNT-001: Pump Overhaul Procedure",
     article: "Section 4.2",
     riskCategory: "HIGH_RISK",
-    content: "Prosedur overhaul pompa sentrifugal untuk unit Olefin. Termasuk langkah isolasi, drainase, dan penggantian mechanical seal sesuai standar API 610."
+    content: "Centrifugal pump overhaul procedure for the Olefin unit. Includes isolation, drainage, and mechanical seal replacement steps according to API 610 standards."
   },
   {
     id: "rec-2",
     regName: "SOP-SAF-012: Hot Work Permit",
     article: "Section 2.1",
     riskCategory: "MEDIUM_RISK",
-    content: "Prosedur penerbitan ijin kerja panas (Hot Work Permit) pada area classified zone. Wajib gas test dan continuous monitoring selama pekerjaan berlangsung."
+    content: "Procedure for issuing Hot Work Permits in classified zones. Mandatory gas testing and continuous monitoring while work is in progress."
   },
   {
     id: "rec-3",
     regName: "P&ID-UTL-003: Cooling Water System",
     article: "Sheet 5",
     riskCategory: "LOW_RISK",
-    content: "Piping and Instrumentation Diagram untuk sistem pendingin air (Cooling Water) pada unit utilitas. Termasuk spesifikasi valve, instrumentasi, dan interlock system."
+    content: "Piping and Instrumentation Diagram for the cooling water system in the utility unit. Includes valve specifications, instrumentation, and interlock systems."
   }
 ];
 

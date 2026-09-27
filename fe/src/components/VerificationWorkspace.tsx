@@ -554,9 +554,9 @@ export function VerificationWorkspace({
               {isFreemium && (
                 <div className="absolute inset-0 z-10 backdrop-blur-sm bg-white/50 flex flex-col items-center justify-center p-4">
                   <Lock className="h-8 w-8 mb-2 text-[#bfdbfe]" />
-                  <p className="text-[10px] font-black uppercase text-center text-[#1e3a8a]">Skor Disembunyikan</p>
+                  <p className="text-[10px] font-black uppercase text-center text-[#1e3a8a]">Score Hidden</p>
                   <Button onClick={handleRegister} size="sm" className="mt-2 bg-[#bfdbfe] hover:bg-yellow-500 text-[#1e3a8a] text-[9px] font-black h-6 uppercase border-2 border-[#1e3a8a]">
-                    Upgrade (3 Kredit)
+                    Upgrade (3 Credits)
                   </Button>
                 </div>
               )}
@@ -603,7 +603,7 @@ export function VerificationWorkspace({
           {/* CTA to workspace */}
           <div className="px-8 py-6 flex items-center justify-center border-t-2 border-[#1e3a8a]/10">
             <Button onClick={() => setView("workspace")} className="rounded-none bg-[#1e3a8a] hover:bg-[#1e3a8a]/90 text-white font-black text-xs uppercase tracking-wider px-8 h-11 border-2 border-[#1e3a8a] flex items-center gap-2">
-              🔍 Buka DrillBit Workspace (Inspeksi Detail)
+              🔍 Open DrillBit Workspace (Detailed Inspection)
             </Button>
           </div>
         </div>
@@ -619,11 +619,11 @@ export function VerificationWorkspace({
             <div className="px-3 py-2 border-b-2 border-[#1e3a8a]/20 bg-white flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2 min-w-0">
                 <FileText className="h-4 w-4 text-[#1e3a8a] shrink-0" />
-                <span className="text-[9px] font-black text-[#1e3a8a] uppercase tracking-wider truncate max-w-[140px]">{fileName || "Dokumen"}</span>
+                <span className="text-[9px] font-black text-[#1e3a8a] uppercase tracking-wider truncate max-w-[140px]">{fileName || "Document"}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Button size="icon" variant="ghost" disabled={currentPage <= 1} onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className="h-6 w-6 rounded-none text-[#1e3a8a]"><ChevronLeft className="h-3 w-3" /></Button>
-                <span className="text-[9px] font-black text-[#1e3a8a] whitespace-nowrap">Hal {currentPage}/{totalPages}</span>
+                <span className="text-[9px] font-black text-[#1e3a8a] whitespace-nowrap">Page {currentPage}/{totalPages}</span>
                 <Button size="icon" variant="ghost" disabled={currentPage >= totalPages} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className="h-6 w-6 rounded-none text-[#1e3a8a]"><ChevronRight className="h-3 w-3" /></Button>
                 <div className="w-px h-4 bg-[#1e3a8a]/20 mx-1" />
                 <Button size="icon" variant="ghost" onClick={() => setZoom(z => Math.max(80, z - 10))} className="h-6 w-6 rounded-none"><ZoomOut className="h-3 w-3" /></Button>
@@ -656,7 +656,7 @@ export function VerificationWorkspace({
                       {!isHeading && (
                         <div className="absolute -top-3 right-2 z-10 opacity-90 hover:opacity-100">
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[8px] font-black uppercase tracking-wider rounded-sm shadow-sm cursor-pointer" style={{ backgroundColor: isHigh(p.status) ? "#EF4444" : isMedium(p.status) ? "#F59E0B" : "#3b82f6", color: isMedium(p.status) ? "#78350F" : "#FFF" }}>
-                            {isHigh(p.status) ? "🔴 HIGH RISK - KLIK UTK SOLUSI" : isMedium(p.status) ? "🟡 MEDIUM RISK - KLIK UTK SOLUSI" : "🟢 COMPLIANT"}
+                            {isHigh(p.status) ? "🔴 HIGH RISK - CLICK FOR SOLUTION" : isMedium(p.status) ? "🟡 MEDIUM RISK - CLICK FOR SOLUTION" : "🟢 COMPLIANT"}
                           </span>
                         </div>
                       )}
@@ -675,7 +675,7 @@ export function VerificationWorkspace({
               {visibleClauses.some((p: any) => p.issue && !isCompliant(p.status) && p.issue.suggestedRevision) && (
                 <div className="mt-8 border-4 border-slate-800 bg-blue-50 p-6 shadow-[6px_6px_0_rgba(6,78,59,1)]">
                   <h4 className="font-black text-slate-800 uppercase tracking-widest text-sm mb-4 border-b-2 border-slate-800/20 pb-2 flex items-center gap-2">
-                    <Wand2 className="h-5 w-5" /> Rekomendasi & Saran Halaman Ini
+                    <Wand2 className="h-5 w-5" /> Recommendations & Suggestions for This Page
                   </h4>
                   <ul className="space-y-4">
                     {visibleClauses
@@ -699,9 +699,9 @@ export function VerificationWorkspace({
                 <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center z-20">
                   <div className="bg-[#1e3a8a] text-white p-6 border-4 border-[#1e3a8a] shadow-[8px_8px_0_rgba(30,58,138,0.3)] text-center max-w-xs">
                     <Lock className="h-8 w-8 mx-auto mb-3 text-[#bfdbfe]" />
-                    <h4 className="font-black uppercase text-sm mb-2">🔒 Terkunci</h4>
-                    <p className="text-white/70 text-xs font-bold mb-4">Daftar Akun Gratis (3 Kredit) untuk Buka Seluruh Draf Needs Revision AI & SHA-256 QR Badge</p>
-                    <Button onClick={handleRegister} className="bg-[#bfdbfe] hover:bg-yellow-500 text-[#1e3a8a] rounded-none border-2 border-[#1e3a8a] font-black text-xs uppercase w-full">Daftar Gratis</Button>
+                    <h4 className="font-black uppercase text-sm mb-2">🔒 Locked</h4>
+                    <p className="text-white/70 text-xs font-bold mb-4">Sign Up for a Free Account (3 Credits) to Unlock All AI Revision Drafts & SHA-256 QR Badge</p>
+                    <Button onClick={handleRegister} className="bg-[#bfdbfe] hover:bg-yellow-500 text-[#1e3a8a] rounded-none border-2 border-[#1e3a8a] font-black text-xs uppercase w-full">Sign Up for Free</Button>
                   </div>
                 </div>
               )}
@@ -711,7 +711,7 @@ export function VerificationWorkspace({
           {/* ─── RIGHT PANEL ─── */}
           <div className="w-full md:w-1/2 flex flex-col bg-white">
             <div className="px-3 py-2 border-b-2 border-[#1e3a8a]/20 bg-[#1e3a8a] flex items-center justify-between shrink-0">
-              <span className="font-black text-[9px] uppercase tracking-widest text-white flex items-center gap-2"><Zap className="h-3 w-3 text-[#bfdbfe] fill-[#bfdbfe]" /> Detail Analisis & Resolusi</span>
+              <span className="font-black text-[9px] uppercase tracking-widest text-white flex items-center gap-2"><Zap className="h-3 w-3 text-[#bfdbfe] fill-[#bfdbfe]" /> Analysis Detail & Resolution</span>
               <span className="text-[8px] font-black uppercase text-[#bfdbfe]">{isFreemium ? "Preview" : "Full Access"}</span>
             </div>
 
@@ -737,7 +737,7 @@ export function VerificationWorkspace({
                 <div className="flex flex-col items-center justify-center h-full text-center p-8 bg-gray-50 border-2 border-dashed border-gray-200">
                   <BookOpen className="h-12 w-12 text-gray-300 mb-4" />
                   <p className="text-sm font-bold text-gray-500 max-w-xs leading-relaxed">
-                    🔍 Klik salah satu paragraf berwarna di dokumen sebelah kiri untuk melihat detail analisis, pasal rujukan, dan rekomendasi perbaikan.
+                    🔍 Click on one of the colored paragraphs in the document on the left to see detailed analysis, reference clauses, and suggested revisions.
                   </p>
                 </div>
               ) : (
@@ -756,14 +756,14 @@ export function VerificationWorkspace({
                       {isLockedCard ? (
                         <div className="p-5 text-center bg-gray-50">
                           <Lock className="h-5 w-5 mx-auto mb-2 text-gray-400" />
-                          <p className="text-[9px] font-bold uppercase text-gray-400 mb-2">🔒 Upgrade untuk Buka</p>
-                          <Button onClick={handleRegister} size="sm" className="bg-[#bfdbfe] hover:bg-yellow-500 text-[#1e3a8a] rounded-none border-2 border-[#1e3a8a] font-black text-[8px] uppercase h-6">Upgrade (3 Kredit)</Button>
+                          <p className="text-[9px] font-bold uppercase text-gray-400 mb-2">🔒 Upgrade to Unlock</p>
+                          <Button onClick={handleRegister} size="sm" className="bg-[#bfdbfe] hover:bg-yellow-500 text-[#1e3a8a] rounded-none border-2 border-[#1e3a8a] font-black text-[8px] uppercase h-6">Upgrade (3 Credits)</Button>
                         </div>
                       ) : isCompliant(clause.status) ? (
                         <div className="p-4 bg-blue-50/50">
-                          <div className="flex items-center gap-1.5 mb-2"><CheckCircle2 className="h-4 w-4 text-blue-600" /><span className="text-xs font-black text-blue-800 uppercase">Klausul Aman</span></div>
+                          <div className="flex items-center gap-1.5 mb-2"><CheckCircle2 className="h-4 w-4 text-blue-600" /><span className="text-xs font-black text-blue-800 uppercase">Safe Clause</span></div>
                           <p className="text-xs text-gray-600 leading-relaxed font-serif italic border-l-2 border-sky-300 pl-3">"{clause.text}"</p>
-                          <p className="text-xs text-gray-600 leading-relaxed mt-4 bg-white p-3 border border-blue-100 rounded-sm">Tidak ada pelanggaran terdeteksi pada klausul ini. Kalimat telah mematuhi standar hukum yang berlaku.</p>
+                          <p className="text-xs text-gray-600 leading-relaxed mt-4 bg-white p-3 border border-blue-100 rounded-sm">No violations detected in this clause. The sentence complies with applicable legal standards.</p>
                         </div>
                       ) : (
                         <div className="divide-y divide-gray-100">
@@ -772,7 +772,7 @@ export function VerificationWorkspace({
                           </div>
                           <div className="p-4">
                             <div className="flex items-center gap-2 mb-2"><AlertTriangle className={`h-4 w-4 ${isHigh(clause.status) ? "text-red-600" : "text-yellow-600"}`} /><span className="text-[10px] font-black uppercase tracking-wider text-[#1e3a8a]">Problem Analysis</span></div>
-                            <p className="text-sm text-gray-800 leading-relaxed font-medium bg-red-50/50 p-3 rounded-sm border border-red-100">{clause.issue?.clauseText || clause.issue?.explanation || "Risiko terdeteksi oleh mesin analisis."}</p>
+                            <p className="text-sm text-gray-800 leading-relaxed font-medium bg-red-50/50 p-3 rounded-sm border border-red-100">{clause.issue?.clauseText || clause.issue?.explanation || "Risk detected by the analysis engine."}</p>
                           </div>
                           {clause.issue?.matchedLaw && (
                             <div className="p-4 bg-[#F0FFF4]">

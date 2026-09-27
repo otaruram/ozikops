@@ -297,12 +297,12 @@ function VerifyPage() {
             </h2>
             <div className="bg-slate-800 text-blue-50 p-6 font-serif">
               <p className="text-sm leading-relaxed text-justify mb-4">
-                Berdasarkan analisis OzikOps AI dan approval dari Senior Engineer, prosedur maintenance ini telah dinyatakan <strong className="text-white">AMAN UNTUK DIEKSEKUSI</strong> sesuai dengan Standard Operating Procedures yang berlaku.
+                Based on OzikOps AI analysis and Senior Engineer approval, this maintenance procedure has been declared <strong className="text-white">SAFE TO EXECUTE</strong> in accordance with applicable Standard Operating Procedures.
               </p>
               <ul className="text-xs space-y-2 font-sans opacity-90 ml-4 list-disc">
-                <li>Terverifikasi sesuai SOP plant yang berlaku.</li>
-                <li>Disetujui oleh Senior Engineer melalui sistem HITL.</li>
-                <li>Sealed dengan SHA-256 cryptographic hash — tamper-proof.</li>
+                <li>Verified according to applicable plant SOP.</li>
+                <li>Approved by Senior Engineer via HITL system.</li>
+                <li>Sealed with SHA-256 cryptographic hash — tamper-proof.</li>
               </ul>
             </div>
           </div>
@@ -314,7 +314,7 @@ function VerifyPage() {
             </Button>
             <Link to="/" className="w-full sm:w-auto">
               <Button variant="outline" className="rounded-none border-2 border-slate-800 text-slate-800 hover:bg-blue-50 font-black uppercase tracking-widest w-full h-12 shadow-[4px_4px_0_rgba(6,78,59,0.5)]">
-                Pelajari OzikOps
+                Learn about OzikOps
               </Button>
             </Link>
           </div>
