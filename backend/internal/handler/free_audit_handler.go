@@ -42,7 +42,7 @@ func (h *FreeAuditHandler) GuestTeaser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrorResponse{
 			Error:   "MISSING_DOCUMENT",
-			Message: "Harap unggah dokumen PDF/DOCX/TXT.",
+			Message: "Please upload a PDF/DOCX/TXT document.",
 		})
 	}
 
@@ -74,7 +74,7 @@ func (h *FreeAuditHandler) GuestTeaser(c *fiber.Ctx) error {
 	}
 
 	if len(text) < 10 {
-		text = "DOKUMEN_TIDAK_TERBACA\n\nSistem gagal mengekstrak teks dari dokumen Anda."
+		text = "UNREADABLE_DOCUMENT\n\nThe system failed to extract text from your document."
 	}
 
 	// Use the real audit service pipeline if available
@@ -130,7 +130,7 @@ func (h *FreeAuditHandler) GuestTeaser(c *fiber.Ctx) error {
 		idx++
 		clauses = append(clauses, domain.AuditClause{
 			ID:     idx,
-			Clause: fmt.Sprintf("Klausul %d.%d", (idx/5)+1, (idx%5)+1),
+			Clause: fmt.Sprintf("Clause %d.%d", (idx/5)+1, (idx%5)+1),
 			Text:   p,
 			Status: "compliant",
 		})
@@ -152,7 +152,7 @@ func (h *FreeAuditHandler) GuestTeaser(c *fiber.Ctx) error {
 		ScoreTechnical:    llmResult.ScoreTechnical,
 		ScoreSocial:       llmResult.ScoreSocial,
 		ScoreTransparency: llmResult.ScoreTransparency,
-		SpatialSummary:    fmt.Sprintf("Analisis dokumen mendeteksi %d klausul. Skor kelayakan: %.0f/100.", len(clauses), score),
+		SpatialSummary:    fmt.Sprintf("Document analysis detected %d clauses. Feasibility score: %.0f/100.", len(clauses), score),
 		TopViolation:      topViolation,
 		Clauses:           clauses,
 	})

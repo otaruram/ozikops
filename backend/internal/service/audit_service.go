@@ -161,7 +161,7 @@ func (s *auditService) ProcessGuestTeaser(ctx context.Context, req *domain.Guest
 
 		clauses = append(clauses, domain.AuditClause{
 			ID:     i + 1,
-			Clause: fmt.Sprintf("Klausul %d.%d", (i/5)+1, (i%5)+1),
+			Clause: fmt.Sprintf("Clause %d.%d", (i/5)+1, (i%5)+1),
 			Text:   p,
 			Status: clauseStatus,
 			Issue:  issue,
@@ -190,7 +190,7 @@ func (s *auditService) ProcessGuestTeaser(ctx context.Context, req *domain.Guest
 		ScoreTechnical:    llmResult.ScoreTechnical,
 		ScoreSocial:       llmResult.ScoreSocial,
 		ScoreTransparency: llmResult.ScoreTransparency,
-		SpatialSummary:    fmt.Sprintf("Analisis dokumen mendeteksi %d klausul. Skor kelayakan: %.0f/100.", len(validParagraphs), score),
+		SpatialSummary:    fmt.Sprintf("Document analysis detected %d clauses. Feasibility score: %.0f/100.", len(validParagraphs), score),
 		TopViolation:      topViolation,
 		Clauses:           clauses,
 	}, nil
@@ -318,7 +318,7 @@ func (s *auditService) ProcessAudit(ctx context.Context, req *domain.ProcessAudi
 
 		clause := domain.AuditClause{
 			ID:     i + 1,
-			Clause: fmt.Sprintf("Klausul %d.%d", (i/5)+1, (i%5)+1),
+			Clause: fmt.Sprintf("Clause %d.%d", (i/5)+1, (i%5)+1),
 			Text:   p,
 			Status: clauseStatus,
 			Issue:  issue,

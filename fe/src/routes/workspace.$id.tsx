@@ -39,8 +39,8 @@ function WorkspacePage() {
         if (clauses.length === 0) {
           clauses = res.issues?.map((issue: any, i: number) => ({
             id: i + 1,
-            clause: `Klausul Terdeteksi ${i + 1}`,
-            text: issue.clauseText || "Teks paragraf tidak tersedia.",
+            clause: `Detected Clause ${i + 1}`,
+            text: issue.clauseText || "Paragraph text is unavailable.",
             status: issue.severity === "HIGH_RISK" ? "high" : (issue.severity === "MEDIUM_RISK" ? "medium" : "compliant"),
             issue: {
               id: issue.id,
@@ -60,7 +60,7 @@ function WorkspacePage() {
       })
       .catch((err) => {
         console.error("Failed to load audit:", err);
-        alert("Gagal memuat detail audit.");
+        alert("Failed to load audit details.");
         navigate({ to: "/dashboard" });
       })
       .finally(() => setLoading(false));
