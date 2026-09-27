@@ -43,7 +43,7 @@ function ReviewerWorkspace() {
       const res = await apiFetch<any>(`/audit/${id}`);
       setVerification(res);
     } catch (err: any) {
-      toast.error("Gagal mengambil data ticket. Anda mungkin tidak memiliki akses.");
+      toast.error("Failed to fetch ticket data. You might not have access.");
       navigate({ to: "/dashboard" });
     } finally {
       setLoading(false);
@@ -52,7 +52,7 @@ function ReviewerWorkspace() {
 
   const handleAction = async (verdict: string) => {
     if (verdict !== "APPROVED" && !feedback.trim()) {
-      toast.error("Tolong berikan feedback mengapa ditolak/perlu direvisi.");
+      toast.error("Please provide feedback on why it was rejected/needs revision.");
       return;
     }
     
@@ -87,10 +87,10 @@ function ReviewerWorkspace() {
         method: 'PUT',
         body: JSON.stringify({ verdict, feedback }),
       });
-      toast.success("Review berhasil disubmit!");
+      toast.success("Review submitted successfully!");
       navigate({ to: "/dashboard" });
     } catch (err: any) {
-      toast.error(err.message || "Gagal submit review");
+      toast.error(err.message || "Failed to submit review");
     } finally {
       setSubmitting(false);
     }
@@ -216,7 +216,7 @@ function ReviewerWorkspace() {
           <div className="bg-white p-8 border-4 border-[#1e3a8a] shadow-[8px_8px_0_rgba(56,189,248,1)] max-w-sm w-full text-center">
             <Lock className="h-12 w-12 text-[#1e3a8a] mx-auto mb-4" />
             <h3 className="text-xl font-black uppercase text-[#1e3a8a] mb-2">Authorization Required</h3>
-            <p className="text-xs font-bold text-slate-500 mb-6">Masukkan 6 digit Secure PIN yang dikirim ke email Anda untuk menandatangani dokumen ini.</p>
+            <p className="text-xs font-bold text-slate-500 mb-6">Enter the 6-digit Secure PIN sent to your email to sign this document.</p>
             
             <div className="flex justify-center mb-6 text-slate-800">
               <InputOTP maxLength={6} value={pin} onChange={(v) => { setPin(v); setPinError(false); }}>
@@ -229,8 +229,8 @@ function ReviewerWorkspace() {
             </div>
             
             <div className="flex gap-3">
-              <Button onClick={() => setIsPinPromptOpen(false)} className="flex-1 rounded-none border-2 border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black uppercase text-xs">Batal</Button>
-              <Button onClick={handleBiometricApprove} disabled={pin.length < 6} className="flex-1 rounded-none border-2 border-[#1e3a8a] bg-[#bfdbfe] hover:bg-yellow-400 text-[#1e3a8a] font-black uppercase text-xs shadow-[4px_4px_0_rgba(30,58,138,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">Verifikasi PIN</Button>
+              <Button onClick={() => setIsPinPromptOpen(false)} className="flex-1 rounded-none border-2 border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black uppercase text-xs">Cancel</Button>
+              <Button onClick={handleBiometricApprove} disabled={pin.length < 6} className="flex-1 rounded-none border-2 border-[#1e3a8a] bg-[#bfdbfe] hover:bg-yellow-400 text-[#1e3a8a] font-black uppercase text-xs shadow-[4px_4px_0_rgba(30,58,138,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">Verify PIN</Button>
             </div>
           </div>
         </div>
