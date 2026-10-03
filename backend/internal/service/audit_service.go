@@ -364,6 +364,10 @@ func (s *auditService) ProcessAudit(ctx context.Context, req *domain.ProcessAudi
 	docData := map[string]interface{}{"pages": pages}
 	parsedJsonBytes, _ := json.Marshal(docData)
 	parsedDocumentJson := string(parsedJsonBytes)
+	
+	// PostgreSQL JSONB does not support null characters
+	parsedDocumentJson = strings.ReplaceAll(parsedDocumentJson, "\\u0000", "")
+	parsedDocumentJson = strings.ReplaceAll(parsedDocumentJson, "\x00", "")
 
 	badgeStatus := domain.BadgeInvalid
 	hash = s.scoringEngine.GenerateHMACBadge(auditID, score)

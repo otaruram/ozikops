@@ -34,6 +34,9 @@ func (r *auditRepository) CreateAudit(ctx context.Context, audit *domain.Project
 	if fileType == "" {
 		fileType = "pdf"
 	}
+	if len(fileType) > 200 {
+		fileType = fileType[:200]
+	}
 
 	created, err := r.client.ProjectAudit.CreateOne(
 		db.ProjectAudit.User.Link(db.User.ID.Equals(audit.UserID)),
@@ -69,11 +72,16 @@ func (r *auditRepository) CreateAudit(ctx context.Context, audit *domain.Project
 			prismaSeverity = db.AuditSeverityCompliant
 		}
 
+		matchedSop := issue.MatchedSop
+		if len(matchedSop) > 250 {
+			matchedSop = matchedSop[:250]
+		}
+
 		_, err := r.client.AuditIssue.CreateOne(
 			db.AuditIssue.Audit.Link(db.ProjectAudit.ID.Equals(created.ID)),
 			db.AuditIssue.Severity.Set(prismaSeverity),
 			db.AuditIssue.ClauseText.Set(issue.ClauseText),
-			db.AuditIssue.MatchedSop.Set(issue.MatchedSop),
+			db.AuditIssue.MatchedSop.Set(matchedSop),
 			db.AuditIssue.OriginalSopText.Set(issue.OriginalSopText),
 			db.AuditIssue.SuggestedRevision.Set(issue.SuggestedRevision),
 			db.AuditIssue.PageNumber.Set(issue.PageNumber),

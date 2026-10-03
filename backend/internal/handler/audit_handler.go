@@ -47,6 +47,9 @@ func (h *AuditHandler) ProcessAudit(c *fiber.Ctx) error {
 	projectName := c.FormValue("projectName")
 	if projectName == "" {
 		projectName = strings.ReplaceAll(fileHeader.Filename, "\x00", "")
+		if len(projectName) > 200 {
+			projectName = projectName[:200]
+		}
 	}
 
 	file, err := fileHeader.Open()
