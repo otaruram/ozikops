@@ -18,18 +18,17 @@ func NewHealthHandler(client *db.PrismaClient) *HealthHandler {
 }
 
 // KeepAlive handles GET /api/keep-alive
-// It runs a lightweight "SELECT 1" query against Supabase (PostgreSQL)
+// It runs a lightweight query against Supabase (PostgreSQL)
 // to prevent the database from pausing due to inactivity,
 // and simultaneously keeps the Render service awake.
 func (h *HealthHandler) KeepAlive(c *fiber.Ctx) error {
 	start := time.Now()
 
 	// Run the lightest possible query to trigger DB activity
-	var result []struct {
-		Result int `json:"result"`
-	}
-	err := h.client.Prisma.QueryRaw("SELECT 1 AS result").Exec(c.Context(), &result)
-	if err != nil {
+	// Uses FindFirst on User model since Prisma Client Go v0.47
+	// does not expose a top-level QueryRaw method.
+	_, err := h.client.User.FindFirst().Exec(c.Context())
+	if err != nil && err != db.ErrNotFound {
 		return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Database ping failed",

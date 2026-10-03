@@ -16,7 +16,7 @@ const (
 )
 
 // Start launches a background goroutine that automatically:
-//  1. Pings Supabase with "SELECT 1" every 10 minutes to prevent database freeze.
+//  1. Pings Supabase with a lightweight query every 10 minutes to prevent database freeze.
 //  2. Self-pings the Render external URL to prevent the service from sleeping.
 //
 // It runs for the lifetime of the application and stops when ctx is cancelled.
@@ -54,16 +54,15 @@ func Start(ctx context.Context, client *db.PrismaClient, port string) {
 }
 
 // pingDB runs the lightest possible query to keep Supabase active.
+// Uses FindFirst on the User model as a lightweight ping since
+// Prisma Client Go v0.47 does not expose a top-level QueryRaw method.
 func pingDB(ctx context.Context, client *db.PrismaClient, ts string) {
-	var result []struct {
-		OK int `json:"ok"`
-	}
-
 	queryCtx, cancel := context.WithTimeout(ctx, httpTimeout)
 	defer cancel()
 
-	err := client.Prisma.QueryRaw("SELECT 1 AS ok").Exec(queryCtx, &result)
-	if err != nil {
+	_, err := client.User.FindFirst().Exec(queryCtx)
+	// ErrNotFound is fine — it still means the DB responded successfully
+	if err != nil && err != db.ErrNotFound {
 		log.Printf("🔄 [KeepAlive][%s] ❌ DB ping failed: %v", ts, err)
 		return
 	}
