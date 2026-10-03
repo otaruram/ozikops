@@ -294,6 +294,13 @@ func (s *auditService) ProcessAudit(ctx context.Context, req *domain.ProcessAudi
 			if matchedLLMIssues[idx] {
 				continue
 			}
+			
+			// Sanitize LLM strings from null bytes
+			llmIssue.ClauseText = strings.ReplaceAll(llmIssue.ClauseText, "\x00", "")
+			llmIssue.MatchedSop = strings.ReplaceAll(llmIssue.MatchedSop, "\x00", "")
+			llmIssue.OriginalSopText = strings.ReplaceAll(llmIssue.OriginalSopText, "\x00", "")
+			llmIssue.SuggestedRevision = strings.ReplaceAll(llmIssue.SuggestedRevision, "\x00", "")
+			
 			clauseTextLower := strings.ToLower(llmIssue.ClauseText)
 			paragraphLower := strings.ToLower(p)
 
@@ -337,6 +344,13 @@ func (s *auditService) ProcessAudit(ctx context.Context, req *domain.ProcessAudi
 	// Append any unmatched LLM issues to the first chunk
 	for idx, llmIssue := range llmResp.Issues {
 		if !matchedLLMIssues[idx] {
+			
+			// Sanitize LLM strings from null bytes
+			llmIssue.ClauseText = strings.ReplaceAll(llmIssue.ClauseText, "\x00", "")
+			llmIssue.MatchedSop = strings.ReplaceAll(llmIssue.MatchedSop, "\x00", "")
+			llmIssue.OriginalSopText = strings.ReplaceAll(llmIssue.OriginalSopText, "\x00", "")
+			llmIssue.SuggestedRevision = strings.ReplaceAll(llmIssue.SuggestedRevision, "\x00", "")
+
 			issue := &domain.AuditIssue{
 				Severity:          domain.RiskSeverity(llmIssue.Severity),
 				ClauseText:        llmIssue.ClauseText,
@@ -365,9 +379,8 @@ func (s *auditService) ProcessAudit(ctx context.Context, req *domain.ProcessAudi
 	parsedJsonBytes, _ := json.Marshal(docData)
 	parsedDocumentJson := string(parsedJsonBytes)
 	
-	// PostgreSQL JSONB does not support null characters
-	parsedDocumentJson = strings.ReplaceAll(parsedDocumentJson, "\\u0000", "")
-	parsedDocumentJson = strings.ReplaceAll(parsedDocumentJson, "\x00", "")
+	// PostgreSQL JSONB does not support null characters, but we already sanitized \x00 in the handler.
+	// We MUST NOT use strings.ReplaceAll on the JSON string because it breaks valid JSON escape sequences.
 
 	badgeStatus := domain.BadgeStatus(status)
 	hash = s.scoringEngine.GenerateHMACBadge(auditID, score)
