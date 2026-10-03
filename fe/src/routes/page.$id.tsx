@@ -8,10 +8,10 @@ export const Route = createFileRoute("/page/$id")({
 
 const PAGES_DATA: Record<string, { title: string; content: React.ReactNode }> = {
   "pln-sustainaction": {
-    title: "PLN SustainAction 2026",
+    title: "Chandra Asri CALIBER 2026",
     content: (
       <>
-        <p>Halaman ini berisikan informasi mengenai integrasi dan komitmen OzikOps dalam mendukung program PLN SustainAction 2026.</p>
+        <p>Halaman ini berisikan informasi mengenai integrasi dan komitmen OzikOps dalam mendukung program Chandra Asri CALIBER 2026.</p>
         <p>OzikOps bertindak sebagai agregator pintar untuk mempercepat transisi energi hijau di tingkat UMKM dan enterprise menengah.</p>
       </>
     ),

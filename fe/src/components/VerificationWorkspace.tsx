@@ -596,7 +596,7 @@ export function VerificationWorkspace({
           <div className="px-8 py-4 bg-[#FFFBEB] border-t-2 border-[#F59E0B]/30">
             <p className="text-[10px] text-[#1e3a8a]/70 leading-relaxed font-bold">
               📌 <strong>Disclaimer:</strong> This compliance report is generated using OzikOps AI in integration with live Chandra Asri Knowledge Base legal databases and spatial environmental APIs.
-              It serves as an official proof of compliance for PLN SustainAction 2026. The SHA-256 hash ensures tamper-proof verification of audit integrity.
+              It serves as an official proof of compliance for Chandra Asri CALIBER 2026. The SHA-256 hash ensures tamper-proof verification of audit integrity.
             </p>
           </div>
 
