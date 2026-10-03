@@ -141,7 +141,7 @@ func main() {
 	go keepalive.Start(kaCtx, client, cfg.Port)
 
 	// 11. Start Server
-	log.Printf("🚀 OzikOps API v2.1.2-fix-db starting on port %s", cfg.Port)
+	log.Printf("🚀 OzikOps API v2.1.3-fix-compiler starting on port %s", cfg.Port)
 	if err := app.Listen(":" + cfg.Port); err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}

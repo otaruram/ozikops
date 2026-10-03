@@ -39,7 +39,7 @@ func (r *auditRepository) CreateAudit(ctx context.Context, audit *domain.Project
 	}
 
 	created, err := r.client.ProjectAudit.CreateOne(
-		db.ProjectAudit.UserID.Set(audit.UserID),
+		db.ProjectAudit.User.Link(db.User.ID.Equals(audit.UserID)),
 		db.ProjectAudit.EquipmentName.Set(audit.EquipmentName),
 		db.ProjectAudit.PddFileType.Set(fileType),
 		db.ProjectAudit.FeasibilityScore.Set(audit.FeasibilityScore),
