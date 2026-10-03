@@ -14,6 +14,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 func main() {
@@ -69,6 +70,7 @@ func main() {
 	})
 
 	// 6. Global Middleware
+	app.Use(recover.New())
 	app.Use(logger.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:8081, http://localhost:3000, http://localhost:3003, https://ozikops.vercel.app, https://ozikops.biz.id, https://www.ozikops.biz.id",

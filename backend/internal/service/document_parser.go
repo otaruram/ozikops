@@ -283,6 +283,12 @@ func (s *documentParserService) ParseCustomRange(input string, totalPages int) [
 }
 
 func (s *documentParserService) ExtractTargetPages(filePath string, pageMode string, customRange string) (string, []int, error) {
+	var finalErr error
+	defer func() {
+		if r := recover(); r != nil {
+			finalErr = fmt.Errorf("panic parsing PDF: %v", r)
+		}
+	}()
 	r, err := pdf.Open(filePath)
 	if err != nil {
 		return "", nil, err
@@ -332,13 +338,13 @@ func (s *documentParserService) ExtractTargetPages(filePath string, pageMode str
 	if extractedText.Len() == 0 {
 		// Fallback to reading the entire document
 		var buf bytes.Buffer
-		b, err := r.GetPlainText()
-		if err == nil {
+		b, getErr := r.GetPlainText()
+		if getErr == nil {
 			buf.ReadFrom(b)
-			return buf.String(), targetPages, nil
+			return buf.String(), targetPages, finalErr
 		}
 	}
 
-	return extractedText.String(), targetPages, nil
+	return extractedText.String(), targetPages, finalErr
 }
 
