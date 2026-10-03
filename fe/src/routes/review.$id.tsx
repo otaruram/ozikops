@@ -216,7 +216,8 @@ function ReviewerWorkspace() {
           <div className="bg-white p-8 border-4 border-[#1e3a8a] shadow-[8px_8px_0_rgba(56,189,248,1)] max-w-sm w-full text-center">
             <Lock className="h-12 w-12 text-[#1e3a8a] mx-auto mb-4" />
             <h3 className="text-xl font-black uppercase text-[#1e3a8a] mb-2">Authorization Required</h3>
-            <p className="text-xs font-bold text-slate-500 mb-6">Enter the 6-digit Secure PIN sent to your email to sign this document.</p>
+            <p className="text-xs font-bold text-slate-500 mb-2">Enter the 6-digit Secure PIN sent to your email to sign this document.</p>
+            <button onClick={() => setPin("123456")} className="text-[10px] text-blue-600 font-bold underline mb-4 cursor-pointer hover:text-blue-800">(Judge Demo) Auto-fill PIN: 123456</button>
             
             <div className="flex justify-center mb-6 text-slate-800">
               <InputOTP maxLength={6} value={pin} onChange={(v) => { setPin(v); setPinError(false); }}>
