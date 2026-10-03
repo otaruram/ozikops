@@ -91,7 +91,7 @@ func extractKeywords(text string) []string {
 
 func (s *auditService) ProcessGuestTeaser(ctx context.Context, req *domain.GuestTeaserRequest) (*domain.GuestTeaserResponse, error) {
 	// 1. Truncate to first 3 pages (~1500 chars)
-	text := strings.ReplaceAll(req.PDDText, " \x00\, \\)
+	text := strings.ReplaceAll(req.PDDText, "\x00", "")
 	if len(text) > 1500 {
 		text = text[:1500]
 	}

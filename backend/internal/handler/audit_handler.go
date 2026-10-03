@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"ozikcarbon-backend/domain"
 	"ozikcarbon-backend/internal/repository"
 	"ozikcarbon-backend/internal/service"
@@ -45,7 +46,7 @@ func (h *AuditHandler) ProcessAudit(c *fiber.Ctx) error {
 
 	projectName := c.FormValue("projectName")
 	if projectName == "" {
-		projectName = strings.ReplaceAll(fileHeader.Filename, " \x00\, \\)
+		projectName = strings.ReplaceAll(fileHeader.Filename, "\x00", "")
 	}
 
 	file, err := fileHeader.Open()
