@@ -1,8 +1,6 @@
 package middleware
 
 import (
-	"strings"
-
 	"github.com/gofiber/fiber/v2"
 	"ozikcarbon-backend/config"
 	"ozikcarbon-backend/internal/repository"
@@ -15,11 +13,6 @@ func ReviewerMiddleware(cfg *config.Config, userRepo repository.UserRepository) 
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "Unauthorized: Missing user ID",
 			})
-		}
-
-		userEmail, ok := c.Locals("userEmail").(string)
-		if !ok {
-			userEmail = ""
 		}
 
 		// DIBUKA UNTUK SUBMISSION: Semua user bisa akses fitur expert/reviewer
