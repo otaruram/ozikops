@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"log"
 	"ozikcarbon-backend/config"
 	"ozikcarbon-backend/internal/handler"
+	"ozikcarbon-backend/internal/keepalive"
 	"ozikcarbon-backend/internal/middleware"
 	"ozikcarbon-backend/internal/repository"
 	"ozikcarbon-backend/internal/service"
@@ -59,6 +61,7 @@ func main() {
 	freeAuditHandler.SetAuditService(auditService)
 	reviewerHandler := handler.NewReviewerHandler(auditRepo)
 	chatHandler := handler.NewChatHandler(chatService)
+	healthHandler := handler.NewHealthHandler(client)
 
 	// 5. Fiber App Init
 	app := fiber.New(fiber.Config{
@@ -122,12 +125,20 @@ func main() {
 	reviewer.Get("/queue", reviewerHandler.GetQueue)
 	reviewer.Put("/audit/:id/review", reviewerHandler.SubmitReview)
 
-	// 8. Health Check
+	// 8. Keep-Alive (pings Supabase DB to prevent freeze + keeps Render awake)
+	app.Get("/api/keep-alive", healthHandler.KeepAlive)
+
+	// 9. Health Check
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok", "service": "OzikOps API"})
 	})
 
-	// 9. Start Server
+	// 10. Start Keep-Alive background worker (auto-pings Supabase + Render)
+	kaCtx, kaCancel := context.WithCancel(context.Background())
+	defer kaCancel()
+	go keepalive.Start(kaCtx, client, cfg.Port)
+
+	// 11. Start Server
 	log.Printf("🚀 OzikOps API starting on port %s", cfg.Port)
 	if err := app.Listen(":" + cfg.Port); err != nil {
 		log.Fatalf("Error starting server: %v", err)
