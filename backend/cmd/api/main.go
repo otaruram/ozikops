@@ -70,13 +70,13 @@ func main() {
 	})
 
 	// 6. Global Middleware
-	app.Use(recover.New())
-	app.Use(logger.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:8081, http://localhost:3000, http://localhost:3003, https://ozikops.vercel.app, https://ozikops.biz.id, https://www.ozikops.biz.id",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
 	}))
+	app.Use(logger.New())
+	app.Use(recover.New())
 
 	// 7. Routes
 	v1 := app.Group("/api/v1")
