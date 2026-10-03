@@ -177,10 +177,10 @@ function Dashboard() {
                 ...(user && ["okitr52@gmail.com", "okitarunaramadhan@gmail.com"].includes(user?.email || "") 
                   ? [{ key: "admin", label: "CEO Panel", icon: ShieldCheck }] : []),
 
+                { key: "reviewer", label: "Expert Approval", icon: EyeOff },
                 ...(dbUser?.role === "ADMIN" || dbUser?.role === "senior_engineer" || (user && ["okitr52@gmail.com", "okitarunaramadhan@gmail.com"].includes(user?.email || ""))
                   ? [
                       { key: "sop-management", label: "SOP Management", icon: ShieldCheck },
-                      { key: "reviewer", label: "Expert Approval", icon: EyeOff }
                     ] : []),
                 { key: "settings", label: "Settings", icon: Settings },
               ]

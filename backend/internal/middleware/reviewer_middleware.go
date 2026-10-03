@@ -22,25 +22,8 @@ func ReviewerMiddleware(cfg *config.Config, userRepo repository.UserRepository) 
 			userEmail = ""
 		}
 
-		// Bootstrap admin check: If email is in ADMIN_EMAILS, they are also a reviewer
-		isReviewer := false
-		if len(cfg.AdminEmails) > 0 {
-			for _, email := range cfg.AdminEmails {
-				if strings.TrimSpace(email) == userEmail {
-					isReviewer = true
-					break
-				}
-			}
-		}
-
-		if !isReviewer {
-			user, err := userRepo.GetByID(c.Context(), userID)
-			if err == nil && user != nil {
-				if user.Role == "ADMIN" || user.Role == "senior_engineer" {
-					isReviewer = true
-				}
-			}
-		}
+		// DIBUKA UNTUK SUBMISSION: Semua user bisa akses fitur expert/reviewer
+		isReviewer := true
 
 
 
