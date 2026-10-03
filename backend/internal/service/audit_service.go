@@ -89,9 +89,21 @@ func extractKeywords(text string) []string {
 	return queries
 }
 
+// sanitizeTextForPrisma removes runes that cause Prisma Client Go's JSON marshaler to fail.
+// Specifically, it removes runes > 0xFFFF which fmt.Sprintf("%q") escapes as \Uxxxxxxxx
+// (which is invalid JSON) and removes null bytes \x00 which PostgreSQL JSONB rejects.
+func sanitizeTextForPrisma(s string) string {
+	return strings.Map(func(r rune) rune {
+		if r == '\x00' || r > 0xFFFF {
+			return -1
+		}
+		return r
+	}, s)
+}
+
 func (s *auditService) ProcessGuestTeaser(ctx context.Context, req *domain.GuestTeaserRequest) (*domain.GuestTeaserResponse, error) {
 	// 1. Truncate to first 3 pages (~1500 chars)
-	text := strings.ReplaceAll(req.PDDText, "\x00", "")
+	text := sanitizeTextForPrisma(req.PDDText)
 	if len(text) > 1500 {
 		text = text[:1500]
 	}
@@ -203,9 +215,8 @@ func (s *auditService) ProcessAudit(ctx context.Context, req *domain.ProcessAudi
 	}
 
 	// 1. Full text
-	text := req.PDDText
-	// Sanitize null bytes
-	text = strings.ReplaceAll(text, "\x00", "")
+	// Sanitize null bytes and invalid high runes (>0xFFFF) that break Prisma's JSON %q escaping
+	text := sanitizeTextForPrisma(req.PDDText)
 
 	// 2. PII Auto-Masking
 	maskedText := s.piiMasker.Mask(text)
@@ -295,11 +306,11 @@ func (s *auditService) ProcessAudit(ctx context.Context, req *domain.ProcessAudi
 				continue
 			}
 			
-			// Sanitize LLM strings from null bytes
-			llmIssue.ClauseText = strings.ReplaceAll(llmIssue.ClauseText, "\x00", "")
-			llmIssue.MatchedSop = strings.ReplaceAll(llmIssue.MatchedSop, "\x00", "")
-			llmIssue.OriginalSopText = strings.ReplaceAll(llmIssue.OriginalSopText, "\x00", "")
-			llmIssue.SuggestedRevision = strings.ReplaceAll(llmIssue.SuggestedRevision, "\x00", "")
+			// Sanitize LLM strings from null bytes and invalid high runes
+			llmIssue.ClauseText = sanitizeTextForPrisma(llmIssue.ClauseText)
+			llmIssue.MatchedSop = sanitizeTextForPrisma(llmIssue.MatchedSop)
+			llmIssue.OriginalSopText = sanitizeTextForPrisma(llmIssue.OriginalSopText)
+			llmIssue.SuggestedRevision = sanitizeTextForPrisma(llmIssue.SuggestedRevision)
 			
 			clauseTextLower := strings.ToLower(llmIssue.ClauseText)
 			paragraphLower := strings.ToLower(p)
@@ -345,11 +356,11 @@ func (s *auditService) ProcessAudit(ctx context.Context, req *domain.ProcessAudi
 	for idx, llmIssue := range llmResp.Issues {
 		if !matchedLLMIssues[idx] {
 			
-			// Sanitize LLM strings from null bytes
-			llmIssue.ClauseText = strings.ReplaceAll(llmIssue.ClauseText, "\x00", "")
-			llmIssue.MatchedSop = strings.ReplaceAll(llmIssue.MatchedSop, "\x00", "")
-			llmIssue.OriginalSopText = strings.ReplaceAll(llmIssue.OriginalSopText, "\x00", "")
-			llmIssue.SuggestedRevision = strings.ReplaceAll(llmIssue.SuggestedRevision, "\x00", "")
+			// Sanitize LLM strings from null bytes and invalid high runes
+			llmIssue.ClauseText = sanitizeTextForPrisma(llmIssue.ClauseText)
+			llmIssue.MatchedSop = sanitizeTextForPrisma(llmIssue.MatchedSop)
+			llmIssue.OriginalSopText = sanitizeTextForPrisma(llmIssue.OriginalSopText)
+			llmIssue.SuggestedRevision = sanitizeTextForPrisma(llmIssue.SuggestedRevision)
 
 			issue := &domain.AuditIssue{
 				Severity:          domain.RiskSeverity(llmIssue.Severity),
