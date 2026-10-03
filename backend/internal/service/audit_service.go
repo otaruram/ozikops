@@ -376,11 +376,22 @@ func (s *auditService) ProcessAudit(ctx context.Context, req *domain.ProcessAudi
 	}
 
 	docData := map[string]interface{}{"pages": pages}
-	parsedJsonBytes, _ := json.Marshal(docData)
+	parsedJsonBytes, marshalErr := json.Marshal(docData)
+	if marshalErr != nil {
+		log.Printf("❌ Failed to marshal docData: %v", marshalErr)
+		parsedJsonBytes = []byte(`{"pages":[],"error":"marshal_failed"}`)
+	}
+
+	// Safety net: validate the JSON is parseable before passing to Prisma types.JSON
+	var jsonValidation interface{}
+	if unmarshalErr := json.Unmarshal(parsedJsonBytes, &jsonValidation); unmarshalErr != nil {
+		log.Printf("❌ parsedDocumentJson is NOT valid JSON: %v", unmarshalErr)
+		log.Printf("❌ First 200 bytes: %s", string(parsedJsonBytes[:minInt(len(parsedJsonBytes), 200)]))
+		// Re-marshal from the validated Go structure to guarantee valid JSON
+		parsedJsonBytes, _ = json.Marshal(map[string]interface{}{"pages": []interface{}{}, "error": "json_validation_failed"})
+	}
+
 	parsedDocumentJson := string(parsedJsonBytes)
-	
-	// PostgreSQL JSONB does not support null characters, but we already sanitized \x00 in the handler.
-	// We MUST NOT use strings.ReplaceAll on the JSON string because it breaks valid JSON escape sequences.
 
 	badgeStatus := domain.BadgeStatus(status)
 	hash = s.scoringEngine.GenerateHMACBadge(auditID, score)
