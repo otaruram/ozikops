@@ -369,7 +369,7 @@ func (s *auditService) ProcessAudit(ctx context.Context, req *domain.ProcessAudi
 	parsedDocumentJson = strings.ReplaceAll(parsedDocumentJson, "\\u0000", "")
 	parsedDocumentJson = strings.ReplaceAll(parsedDocumentJson, "\x00", "")
 
-	badgeStatus := status
+	badgeStatus := domain.BadgeStatus(status)
 	hash = s.scoringEngine.GenerateHMACBadge(auditID, score)
 
 	audit := &domain.ProjectAudit{
