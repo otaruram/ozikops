@@ -404,7 +404,10 @@ func (s *auditService) ProcessAudit(ctx context.Context, req *domain.ProcessAudi
 
 	parsedDocumentJson := string(parsedJsonBytes)
 
-	badgeStatus := domain.BadgeStatus(status)
+	badgeStatus := domain.BadgeInvalid
+	if score >= 80 {
+		badgeStatus = domain.BadgeActive
+	}
 	hash = s.scoringEngine.GenerateHMACBadge(auditID, score)
 
 	audit := &domain.ProjectAudit{
