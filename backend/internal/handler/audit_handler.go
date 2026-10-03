@@ -45,7 +45,7 @@ func (h *AuditHandler) ProcessAudit(c *fiber.Ctx) error {
 
 	projectName := c.FormValue("projectName")
 	if projectName == "" {
-		projectName = fileHeader.Filename
+		projectName = strings.ReplaceAll(fileHeader.Filename, " \x00\, \\)
 	}
 
 	file, err := fileHeader.Open()
@@ -96,6 +96,7 @@ func (h *AuditHandler) ProcessAudit(c *fiber.Ctx) error {
 
 	res, err := h.auditService.ProcessAudit(c.Context(), &req)
 	if err != nil {
+		log.Printf("❌ ProcessAudit Error: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrorResponse{
 			Error: err.Error(),
 		})

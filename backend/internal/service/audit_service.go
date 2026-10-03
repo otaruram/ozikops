@@ -91,7 +91,7 @@ func extractKeywords(text string) []string {
 
 func (s *auditService) ProcessGuestTeaser(ctx context.Context, req *domain.GuestTeaserRequest) (*domain.GuestTeaserResponse, error) {
 	// 1. Truncate to first 3 pages (~1500 chars)
-	text := req.PDDText
+	text := strings.ReplaceAll(req.PDDText, " \x00\, \\)
 	if len(text) > 1500 {
 		text = text[:1500]
 	}
@@ -204,6 +204,8 @@ func (s *auditService) ProcessAudit(ctx context.Context, req *domain.ProcessAudi
 
 	// 1. Full text
 	text := req.PDDText
+	// Sanitize null bytes
+	text = strings.ReplaceAll(text, "\x00", "")
 
 	// 2. PII Auto-Masking
 	maskedText := s.piiMasker.Mask(text)
